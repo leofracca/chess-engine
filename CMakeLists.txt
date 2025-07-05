@@ -3,4 +3,11 @@ project(ChessEngine)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(ChessEngine main.cpp)
+################
+# Source files #
+################
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
+list(REMOVE_ITEM SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp)
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS include/*.h)
+
+add_executable(ChessEngine ${PROJECT_SOURCE_DIR}/src/main.cpp ${SOURCES} ${HEADERS})
