@@ -11,3 +11,8 @@ list(REMOVE_ITEM SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp)
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS include/*.h)
 
 add_executable(ChessEngine ${PROJECT_SOURCE_DIR}/src/main.cpp ${SOURCES} ${HEADERS})
+
+target_include_directories(ChessEngine
+        PUBLIC
+        ${PROJECT_SOURCE_DIR}/include
+)
