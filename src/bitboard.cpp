@@ -11,9 +11,9 @@ Bitboard::Bitboard()
 
 void Bitboard::print() const
 {
-    for (int rank = 0; rank < 8; rank++)
+    for (int rank = 0; rank < board_dimensions::N_RANKS; rank++)
     {
-        for (int file = 0; file < 8; file++)
+        for (int file = 0; file < board_dimensions::N_FILES; file++)
         {
             if (file == 0)
             {
