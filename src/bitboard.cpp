@@ -15,6 +15,7 @@ void Bitboard::print() const
     {
         for (int file = 0; file < board_dimensions::N_FILES; file++)
         {
+            // Print the rank number on the left side of the board
             if (file == 0)
             {
                 std::print("{} ", 8 - rank);
@@ -27,7 +28,8 @@ void Bitboard::print() const
         std::println();
     }
 
-    std::print("  a b c d e f g h\n");
+    // Print the file letters at the bottom of the board
+    std::println("  a b c d e f g h");
 }
 
 int Bitboard::getBit(const int square) const
