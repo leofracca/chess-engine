@@ -36,6 +36,9 @@ void Bitboard::print() const
 
     // Print the file letters at the bottom of the board
     std::println("  a b c d e f g h");
+
+    // Print the current bitboard value (useful for debugging)
+    std::println("Current bitboard: {}", m_bitboard);
 }
 
 int Bitboard::getBit(const Square square) const
