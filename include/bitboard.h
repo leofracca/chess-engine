@@ -36,6 +36,30 @@ enum class Square : int
 };
 
 /**
+ * @brief Overloaded left shift operator for Square enumeration.
+ *
+ * @param lhs The left-hand side operand.
+ * @param rhs The right-hand side operand.
+ * @return The result of the left shift operation.
+ */
+constexpr uint64_t operator<<(const uint64_t lhs, Square rhs)
+{
+    return lhs << static_cast<int>(rhs);
+}
+
+/**
+ * @brief Overloaded right shift operator for Square enumeration.
+ *
+ * @param lhs The left-hand side operand.
+ * @param rhs The right-hand side operand.
+ * @return The result of the right shift operation.
+ */
+constexpr uint64_t operator>>(const uint64_t lhs, Square rhs)
+{
+    return lhs >> static_cast<int>(rhs);
+}
+
+/**
  * @brief Class representing a chess board using a 64-bit integer (bitboard).
  *
  * The Bitboard class provides methods to manipulate and query the state of a chess board.
@@ -59,19 +83,19 @@ public:
      * @param square The square to set (0-63).
      * @return The value of the bit at the specified square.
      */
-    [[nodiscard]] int getBit(int square) const;
+    [[nodiscard]] int getBit(Square square) const;
 
     /**
      * @brief Sets the bit corresponding to a given square.
      * @param square The square to set (0-63).
      */
-    void setBit(int square);
+    void setBit(Square square);
 
     /**
      * @brief Clears the bit corresponding to a given square.
      * @param square The square to clear (0-63).
      */
-    void clearBit(int square);
+    void clearBit(Square square);
 
     /**
      * @brief Gets the entire bitboard as a 64-bit integer.

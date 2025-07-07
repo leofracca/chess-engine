@@ -18,11 +18,11 @@ void Bitboard::print() const
             // Print the rank number on the left side of the board
             if (file == 0)
             {
-                std::print("{} ", 8 - rank);
+                std::print("{} ", board_dimensions::N_RANKS - rank);
             }
 
             // Calculate the square index based on rank and file
-            const int square = rank * 8 + file;
+            const auto square = static_cast<Square>(rank * board_dimensions::N_FILES + file);
             std::print("{} ", getBit(square));
         }
         std::println();
@@ -32,17 +32,17 @@ void Bitboard::print() const
     std::println("  a b c d e f g h");
 }
 
-int Bitboard::getBit(const int square) const
+int Bitboard::getBit(const Square square) const
 {
     return (m_bitboard >> square) & 1;
 }
 
-void Bitboard::setBit(const int square)
+void Bitboard::setBit(const Square square)
 {
     m_bitboard |= (1ULL << square);
 }
 
-void Bitboard::clearBit(const int square)
+void Bitboard::clearBit(const Square square)
 {
     m_bitboard &= ~(1ULL << square);
 }
