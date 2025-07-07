@@ -40,4 +40,26 @@ namespace chess_engine
 
     return attacks;
 }
+
+/*consteval*/ Bitboard PregeneratedMoves::generateKingAttacks(const Square square)
+{
+    const Bitboard bitboard(square);
+    Bitboard attacks;
+
+    // Upward attacks
+    attacks |= (bitboard >> 8); // Attack 1 square up
+    attacks |= (bitboard >> 7) & NOT_A_FILE; // Attack 1 square up and left
+    attacks |= (bitboard >> 9) & NOT_H_FILE; // Attack 1 square up and right
+
+    // Downward attacks
+    attacks |= (bitboard << 8); // Attack 1 square down
+    attacks |= (bitboard << 7) & NOT_H_FILE; // Attack 1 square down and right
+    attacks |= (bitboard << 9) & NOT_A_FILE; // Attack 1 square down and left
+
+    // Horizontal attacks
+    attacks |= (bitboard >> 1) & NOT_H_FILE; // Attack 1 square left
+    attacks |= (bitboard << 1) & NOT_A_FILE; // Attack 1 square right
+
+    return attacks;
+}
 } // namespace chess_engine

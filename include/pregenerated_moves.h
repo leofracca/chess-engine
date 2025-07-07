@@ -26,10 +26,19 @@ public:
      */
     [[nodiscard]] static /*consteval*/ Bitboard generateKnightAttacks(Square square);
 
+    /**
+     * @brief Generates king attacks for a given square.
+     *
+     * @param square The square from which to generate king attacks.
+     * @return The bitboard representing the king attacks from the given square.
+     */
+    [[nodiscard]] static /*consteval*/ Bitboard generateKingAttacks(Square square);
+
 private:
     std::array<Bitboard, 64> m_whitePawnsAttacks; //< Precomputed pawn attacks for white pawns
     std::array<Bitboard, 64> m_blackPawnsAttacks; //< Precomputed pawn attacks for black pawns
     std::array<Bitboard, 64> m_knightAttacks; //< Precomputed knight attacks
+    std::array<Bitboard, 64> m_kingAttacks; //< Precomputed king attacks
 
     static constexpr Bitboard NOT_A_FILE{18374403900871474942ULL}; //< All squares set to 1 except the 'a' file
     static constexpr Bitboard NOT_H_FILE{9187201950435737471ULL}; //< All squares set to 1 except the 'h' file
