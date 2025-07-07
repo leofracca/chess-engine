@@ -9,6 +9,12 @@ Bitboard::Bitboard()
 {
 }
 
+Bitboard::Bitboard(const Square square)
+    : m_bitboard(0)
+{
+    setBit(square);
+}
+
 void Bitboard::print() const
 {
     for (int rank = 0; rank < board_dimensions::N_RANKS; rank++)

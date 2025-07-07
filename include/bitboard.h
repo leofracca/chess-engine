@@ -60,6 +60,15 @@ constexpr uint64_t operator>>(const uint64_t lhs, Square rhs)
 }
 
 /**
+ * @brief Represents the two sides in a chess game.
+ */
+enum class Side : int
+{
+    White,
+    Black
+};
+
+/**
  * @brief Class representing a chess board using a 64-bit integer (bitboard).
  *
  * The Bitboard class provides methods to manipulate and query the state of a chess board.
@@ -72,6 +81,21 @@ public:
      * @brief Default constructor initializes the bitboard to zero.
      */
     Bitboard();
+
+    /**
+     * @brief Initializes the bitboard with a given integer.
+     * @param bitboard The state of the bitboard.
+     */
+    explicit constexpr Bitboard(uint64_t bitboard)
+        : m_bitboard(bitboard)
+    {
+    }
+
+    /**
+     * @brief Initializes the bitboard with a given square.
+     * @param square The square to set.
+     */
+    explicit Bitboard(Square square);
 
     /**
      * @brief Prints the current state of the bitboard.
@@ -102,6 +126,55 @@ public:
      * @return The current state of the bitboard.
      */
     [[nodiscard]] uint64_t getBitboard() const;
+
+    /**
+     * @brief Left shift operator.
+     *
+     * @param s The number of bits to shift.
+     * @return The bitboard after shifting left.
+     */
+    constexpr Bitboard operator<<(const int s) const
+    {
+        return Bitboard(m_bitboard << s);
+    }
+
+    /**
+     * @brief Right shift operator.
+     *
+     * @param s The number of bits to shift.
+     * @return The bitboard after shifting right.
+     */
+    constexpr Bitboard operator>>(const int s) const
+    {
+        return Bitboard(m_bitboard >> s);
+    }
+
+    /**
+     * @brief Bitwise AND operator.
+     *
+     * @param other The other bitboard to AND with.
+     * @return The result of the AND operation as a new Bitboard.
+     */
+    constexpr Bitboard operator&(const Bitboard& other) const
+    {
+        return Bitboard(m_bitboard & other.m_bitboard);
+    }
+
+    /**
+     * @brief Compound bitwise OR operator.
+     *
+     * @param other The other bitboard to OR with.
+     * @return This bitboard after the OR operation.
+     */
+    constexpr Bitboard& operator|=(const Bitboard& other)
+    {
+        m_bitboard |= other.m_bitboard;
+        return *this;
+    }
+
+    bool operator==(const Bitboard& bitboard) const = default;
+
+    bool operator!=(const Bitboard& bitboard) const = default;
 
 private:
     uint64_t m_bitboard; //< The 64-bit integer representing the chess board.
