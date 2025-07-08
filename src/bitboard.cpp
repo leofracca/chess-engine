@@ -4,17 +4,6 @@
 
 namespace chess_engine
 {
-Bitboard::Bitboard()
-    : m_bitboard(0)
-{
-}
-
-Bitboard::Bitboard(const Square square)
-    : m_bitboard(0)
-{
-    setBit(square);
-}
-
 void Bitboard::print() const
 {
     for (int rank = 0; rank < board_dimensions::N_RANKS; rank++)
@@ -39,21 +28,6 @@ void Bitboard::print() const
 
     // Print the current bitboard value (useful for debugging)
     std::println("Current bitboard: {}", m_bitboard);
-}
-
-int Bitboard::getBit(const Square square) const
-{
-    return (m_bitboard >> square) & 1;
-}
-
-void Bitboard::setBit(const Square square)
-{
-    m_bitboard |= (1ULL << square);
-}
-
-void Bitboard::clearBit(const Square square)
-{
-    m_bitboard &= ~(1ULL << square);
 }
 
 uint64_t Bitboard::getBitboard() const

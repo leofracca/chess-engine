@@ -80,13 +80,16 @@ public:
     /**
      * @brief Default constructor initializes the bitboard to zero.
      */
-    Bitboard();
+    constexpr Bitboard()
+        : m_bitboard(0)
+    {
+    }
 
     /**
      * @brief Initializes the bitboard with a given integer.
      * @param bitboard The state of the bitboard.
      */
-    explicit constexpr Bitboard(uint64_t bitboard)
+    explicit constexpr Bitboard(const uint64_t bitboard)
         : m_bitboard(bitboard)
     {
     }
@@ -95,7 +98,11 @@ public:
      * @brief Initializes the bitboard with a given square.
      * @param square The square to set.
      */
-    explicit Bitboard(Square square);
+    explicit constexpr Bitboard(const Square square)
+        : m_bitboard(0)
+    {
+        setBit(square);
+    }
 
     /**
      * @brief Prints the current state of the bitboard.
@@ -107,19 +114,28 @@ public:
      * @param square The square to set (0-63).
      * @return The value of the bit at the specified square.
      */
-    [[nodiscard]] int getBit(Square square) const;
+    [[nodiscard]] constexpr int getBit(const Square square) const
+    {
+        return (m_bitboard >> square) & 1;
+    }
 
     /**
      * @brief Sets the bit corresponding to a given square.
      * @param square The square to set (0-63).
      */
-    void setBit(Square square);
+    constexpr void setBit(const Square square)
+    {
+        m_bitboard |= (1ULL << square);
+    }
 
     /**
      * @brief Clears the bit corresponding to a given square.
      * @param square The square to clear (0-63).
      */
-    void clearBit(Square square);
+    constexpr void clearBit(const Square square)
+    {
+        m_bitboard &= ~(1ULL << square);
+    }
 
     /**
      * @brief Gets the entire bitboard as a 64-bit integer.
