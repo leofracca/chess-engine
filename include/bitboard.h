@@ -21,7 +21,7 @@ namespace board_dimensions
 /**
  * @brief Squares on a chess board.
  */
-enum class Square : int
+enum class Square : uint64_t
 {
     // clang-format off
     a8, b8, c8, d8, e8, f8, g8, h8,
@@ -57,6 +57,127 @@ constexpr uint64_t operator<<(const uint64_t lhs, Square rhs)
 constexpr uint64_t operator>>(const uint64_t lhs, Square rhs)
 {
     return lhs >> static_cast<int>(rhs);
+}
+
+/**
+ * @brief Overloaded addition between Square and int.
+ *
+ * @param lhs The left-hand side operand.
+ * @param rhs The right-hand side operand.
+ * @return The result of the addition operation.
+ */
+constexpr Square operator+(const Square lhs, const int rhs)
+{
+    return static_cast<Square>(static_cast<int>(lhs) + rhs);
+}
+
+/**
+ * @brief Overloaded addition between two Squares.
+ *        The result is the sum of their underlying integer values.
+ *
+ * @param lhs The left-hand side operand.
+ * @param rhs The right-hand side operand.
+ * @return The result of the subtraction operation.
+ */
+constexpr Square operator+(const Square lhs, const Square rhs)
+{
+    return static_cast<Square>(static_cast<int>(lhs) + static_cast<int>(rhs));
+}
+
+/**
+ * @brief Overloaded subtraction between Square and int.
+ *
+ * @param lhs The left-hand side operand.
+ * @param rhs The right-hand side operand.
+ * @return The result of the subtraction operation.
+ */
+constexpr Square operator-(const Square lhs, const int rhs)
+{
+    return static_cast<Square>(static_cast<int>(lhs) - rhs);
+}
+
+/**
+ * @brief Overloaded multiplication between Square and int.
+ *
+ * @param lhs The left-hand side operand.
+ * @param rhs The right-hand side operand.
+ * @return The result of the multiplication operation.
+ */
+constexpr Square operator*(const Square lhs, const int rhs)
+{
+    return static_cast<Square>(static_cast<int>(lhs) * rhs);
+}
+
+/**
+ * @brief Overloaded division between Square and int.
+ *
+ * @param lhs The left-hand side operand.
+ * @param rhs The right-hand side operand.
+ * @return The result of the division operation.
+ */
+constexpr Square operator/(const Square lhs, const int rhs)
+{
+    return static_cast<Square>(static_cast<int>(lhs) / rhs);
+}
+
+/**
+ * @brief Overloaded modulus operator for Square and int.
+ *
+ * @param lhs The left-hand side operand.
+ * @param rhs The right-hand side operand.
+ * @return The result of the modulus operation.
+ */
+constexpr Square operator%(const Square lhs, const int rhs)
+{
+    return static_cast<Square>(static_cast<int>(lhs) % rhs);
+}
+
+/**
+ * @brief Overloaded increment operator for Square.
+ *
+ * @param lhs The left-hand side operand.
+ * @return The result of the increment operation.
+ */
+constexpr Square operator++(Square& lhs, int)
+{
+    lhs = lhs + 1;
+    return lhs;
+}
+
+/**
+ * @brief Overloaded decrement operator for Square.
+ *
+ * @param lhs The left-hand side operand.
+ * @return The result of the decrement operation.
+ */
+constexpr Square operator--(Square& lhs, int)
+{
+    lhs = lhs - 1;
+    return lhs;
+}
+
+/**
+ * @brief Overloaded greater than operator between Square and int.
+ *
+ * @param lhs The left-hand side operand.
+ * @param rhs The right-hand side operand.
+ * @return True if lhs is greater than rhs, false otherwise.
+ */
+constexpr bool operator>(const Square lhs, const int rhs)
+{
+    return static_cast<int>(lhs) > rhs;
+}
+
+/**
+ * @brief Overloaded less than operator between Square and int.
+ *
+ * @param lhs The left-hand side operand.
+ * @param rhs The right-hand side operand.
+ * @return True if lhs is less than rhs, false otherwise.
+ */
+constexpr bool operator<(const Square lhs, const int rhs)
+{
+    return static_cast<int>(lhs) < rhs;
 }
 
 /**
