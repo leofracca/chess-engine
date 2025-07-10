@@ -30,5 +30,3 @@ To use this command `Doxygen` is required. OPTIONAL: you will also need the `tex
 - [Chess Programming - YouTube](https://www.youtube.com/playlist?list=PLFt_AvWsXl0cvHyu32ajwh2qU1i6hl77c)
 
 - [Chessprogramming wiki](https://www.youtube.com/playlist?list=PLFt_AvWsXl0cvHyu32ajwh2qU1i6hl77c)
-
-- 
