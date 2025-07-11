@@ -271,6 +271,24 @@ public:
     }
 
     /**
+     * @brief Counts the number of bits set to 1 in the bitboard.
+     *
+     * @return The number of bits set to 1 in the bitboard.
+     */
+    constexpr int getNumberOfBitsSet()
+    {
+        int count = 0;
+
+        while (m_bitboard > 0)
+        {
+            count += m_bitboard & 1; // Increment count if the least significant bit is set
+            m_bitboard >>= 1;        // Shift right to check the next bit
+        }
+
+        return count;
+    }
+
+    /**
      * @brief Gets the entire bitboard as a 64-bit integer.
      * @return The current state of the bitboard.
      */
