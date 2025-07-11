@@ -169,6 +169,18 @@ constexpr bool operator>(const Square lhs, const int rhs)
 }
 
 /**
+ * @brief Overloaded greater than or equal to operator between Square and int.
+ *
+ * @param lhs The left-hand side operand.
+ * @param rhs The right-hand side operand.
+ * @return True if lhs is greater than or equal to rhs, false otherwise.
+ */
+constexpr bool operator>=(const Square lhs, const int rhs)
+{
+    return static_cast<int>(lhs) >= rhs;
+}
+
+/**
  * @brief Overloaded less than operator between Square and int.
  *
  * @param lhs The left-hand side operand.

@@ -147,6 +147,66 @@ public:
     }
 
     /**
+     * @brief Generates bishop attacks on the fly for a given square considering occupied squares.
+     *        If the square is occupied, it stops generating attacks in that direction.
+     *
+     * @param square The square from which to generate bishop attacks.
+     * @param occupied The bitboard representing occupied squares.
+     * @return The bitboard representing the bishop attacks from the given square.
+     */
+    [[nodiscard]] static constexpr Bitboard generateBishopAttacksOnTheFly(const Square square, const Bitboard occupied)
+    {
+        Bitboard attacks;
+
+        // Get rank and file of the square
+        const Square rank = square / board_dimensions::N_RANKS;
+        const Square file = square % board_dimensions::N_FILES;
+
+        // Generate attacks in all four diagonal directions
+        for (Square r = rank + 1, f = file + 1;
+            r < board_dimensions::N_RANKS && f < board_dimensions::N_FILES;
+            r++, f++)
+        {
+            const Square targetSquare = r * board_dimensions::N_FILES + f;
+            attacks.setBit(targetSquare);
+            if (occupied.getBit(targetSquare))
+                break; // Stop if we hit an occupied square
+        }
+
+        for (Square r = rank - 1, f = file + 1;
+            r >= 0 && f < board_dimensions::N_FILES;
+            r--, f++)
+        {
+            const Square targetSquare = r * board_dimensions::N_FILES + f;
+            attacks.setBit(targetSquare);
+            if (occupied.getBit(targetSquare))
+                break;
+        }
+
+        for (Square r = rank + 1, f = file - 1;
+            r < board_dimensions::N_RANKS && f >= 0;
+            r++, f--)
+        {
+            const Square targetSquare = r * board_dimensions::N_FILES + f;
+            attacks.setBit(targetSquare);
+            if (occupied.getBit(targetSquare))
+                break;
+        }
+
+        for (Square r = rank - 1, f = file - 1;
+            r >= 0 && f >= 0;
+            r--, f--)
+        {
+            const Square targetSquare = r * board_dimensions::N_FILES + f;
+            attacks.setBit(targetSquare);
+            if (occupied.getBit(targetSquare))
+                break;
+        }
+
+        return attacks;
+    }
+
+    /**
      * @brief Generates rook attacks for a given square.
      *
      * @param square The square from which to generate rook attacks.
@@ -184,6 +244,57 @@ public:
         return attacks;
     }
 
+    /**
+     * @brief Generates rook attacks on the fly for a given square considering occupied squares.
+     *        If the square is occupied, it stops generating attacks in that direction.
+     *
+     * @param square The square from which to generate rook attacks.
+     * @param occupied The bitboard representing occupied squares.
+     * @return The bitboard representing the rook attacks from the given square.
+     */
+    [[nodiscard]] static constexpr Bitboard generateRookAttacksOnTheFly(const Square square, const Bitboard occupied)
+    {
+        Bitboard attacks;
+
+        // Get rank and file of the square
+        const Square rank = square / board_dimensions::N_RANKS;
+        const Square file = square % board_dimensions::N_FILES;
+
+        // Generate attacks in all four straight directions
+        for (Square r = rank + 1; r < board_dimensions::N_RANKS; r++)
+        {
+            const Square targetSquare = r * board_dimensions::N_FILES + file;
+            attacks.setBit(targetSquare);
+            if (occupied.getBit(targetSquare))
+                break; // Stop if we hit an occupied square
+        }
+
+        for (Square r = rank - 1; r >= 0; r--)
+        {
+            const Square targetSquare = r * board_dimensions::N_FILES + file;
+            attacks.setBit(targetSquare);
+            if (occupied.getBit(targetSquare))
+                break;
+        }
+
+        for (Square f = file + 1; f < board_dimensions::N_FILES; f++)
+        {
+            const Square targetSquare = rank * board_dimensions::N_RANKS + f;
+            attacks.setBit(targetSquare);
+            if (occupied.getBit(targetSquare))
+                break;
+        }
+
+        for (Square f = file - 1; f >= 0; f--)
+        {
+            const Square targetSquare = rank * board_dimensions::N_RANKS + f;
+            attacks.setBit(targetSquare);
+            if (occupied.getBit(targetSquare))
+                break;
+        }
+
+        return attacks;
+    }
 private:
     std::array<Bitboard, 64> m_whitePawnsAttacks; //< Precomputed pawn attacks for white pawns
     std::array<Bitboard, 64> m_blackPawnsAttacks; //< Precomputed pawn attacks for black pawns
