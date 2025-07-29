@@ -295,6 +295,33 @@ public:
 
         return attacks;
     }
+
+    /**
+     * @brief Generates occupancy mask for a given index and attack mask.
+     *
+     * @param index The index representing the occupancy configuration.
+     * @param attackMask The bitboard representing the attack mask.
+     * @return The bitboard representing the occupancy mask.
+     */
+    [[nodiscard]] static constexpr Bitboard generateOccupancyMask(const int index, Bitboard attackMask)
+    {
+        Bitboard occupancyMask;
+
+        const int relevantBits = attackMask.getNumberOfBitsSet();
+        for (int i = 0; i < relevantBits; i++)
+        {
+            const Square square = attackMask.getSquareOfLeastSignificantBitIndex();
+            attackMask.clearBit(square);
+
+            if (index & (1 << i))
+            {
+                occupancyMask.setBit(square);
+            }
+        }
+
+        return occupancyMask;
+    }
+
 private:
     std::array<Bitboard, 64> m_whitePawnsAttacks; //< Precomputed pawn attacks for white pawns
     std::array<Bitboard, 64> m_blackPawnsAttacks; //< Precomputed pawn attacks for black pawns
@@ -305,5 +332,30 @@ private:
     static constexpr Bitboard NOT_H_FILE{9187201950435737471ULL}; //< All squares set to 1 except the 'h' file
     static constexpr Bitboard NOT_AB_FILE{18229723555195321596ULL}; //< All squares set to 1 except the 'a' and 'b' files
     static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares set to 1 except the 'h' and 'g' files
+
+    // clang-format off
+    static constexpr std::array<int, 64> BISHOP_RELEVANT_BITS = //< Number of relevant bits for bishop attacks for each square
+    {
+        6, 5, 5, 5, 5, 5, 5, 6,
+        5, 5, 5, 5, 5, 5, 5, 5,
+        5, 5, 7, 7, 7, 7, 5, 5,
+        5, 5, 7, 9, 9, 7, 5, 5,
+        5, 5, 7, 9, 9, 7, 5, 5,
+        5, 5, 7, 7, 7, 7, 5, 5,
+        5, 5, 5, 5, 5, 5, 5, 5,
+        6, 5, 5, 5, 5, 5, 5, 6
+    };
+    static constexpr std::array<int, 64> ROOK_RELEVANT_BITS = //< Number of relevant bits for rook attacks for each square
+    {
+        12, 11, 11, 11, 11, 11, 11, 12,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        12, 11, 11, 11, 11, 11, 11, 12
+    };
+    // clang-format on
 };
 } // namespace chess_engine

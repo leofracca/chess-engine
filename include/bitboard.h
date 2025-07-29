@@ -21,7 +21,7 @@ namespace board_dimensions
 /**
  * @brief Squares on a chess board.
  */
-enum class Square : uint64_t
+enum class Square : int
 {
     // clang-format off
     a8, b8, c8, d8, e8, f8, g8, h8,
@@ -31,7 +31,8 @@ enum class Square : uint64_t
     a4, b4, c4, d4, e4, f4, g4, h4,
     a3, b3, c3, d3, e3, f3, g3, h3,
     a2, b2, c2, d2, e2, f2, g2, h2,
-    a1, b1, c1, d1, e1, f1, g1, h1
+    a1, b1, c1, d1, e1, f1, g1, h1,
+    INVALID = -1
     // clang-format on
 };
 
@@ -275,17 +276,41 @@ public:
      *
      * @return The number of bits set to 1 in the bitboard.
      */
-    constexpr int getNumberOfBitsSet()
+    [[nodiscard]] constexpr int getNumberOfBitsSet() const
     {
         int count = 0;
+        uint64_t temp = m_bitboard;
 
-        while (m_bitboard > 0)
+        while (temp > 0)
         {
-            count += m_bitboard & 1; // Increment count if the least significant bit is set
-            m_bitboard >>= 1;        // Shift right to check the next bit
+            count += temp & 1; // Increment count if the least significant bit is set
+            temp >>= 1; // Shift right to check the next bit
         }
 
         return count;
+    }
+
+    /**
+     * @brief Gets the square index of the least significant bit that is set.
+     *
+     * @return The square index of the least significant bit that is set, or Square::INVALID if no bits are set.
+     */
+    [[nodiscard]] constexpr Square getSquareOfLeastSignificantBitIndex() const
+    {
+        if (m_bitboard == 0)
+            return Square::INVALID; // No bits are set
+
+        // Find the index of the least significant bit that is set
+        Square square = Square::a8;
+        uint64_t temp = m_bitboard;
+
+        while ((temp & 1) == 0)
+        {
+            temp >>= 1;
+            square++;
+        }
+
+        return square;
     }
 
     /**
