@@ -194,15 +194,6 @@ constexpr bool operator<(const Square lhs, const int rhs)
 }
 
 /**
- * @brief Represents the two sides in a chess game.
- */
-enum class Side : int
-{
-    White,
-    Black
-};
-
-/**
  * @brief Class representing a chess board using a 64-bit integer (bitboard).
  *
  * The Bitboard class provides methods to manipulate and query the state of a chess board.

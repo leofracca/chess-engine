@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bitboard.h"
+#include "board.h"
 
 #include <array>
 
