@@ -53,11 +53,12 @@ public:
         return generateRandomUint64() & generateRandomUint64() & generateRandomUint64();
     }
 
-    static constexpr uint64_t generateMagicNumber(Square square, Piece piece)
+    static consteval uint64_t generateMagicNumber(const Square square, const Piece piece)
     {
         // TODO: Add comments before I forget how this works :)
-        static_assert((piece == Piece::Rook || piece == Piece::Bishop),
-                      "Magic numbers can only be generated for Rooks and Bishops.");
+
+        // static_assert((piece == Piece::Rook || piece == Piece::Bishop),
+        //               "Magic numbers can only be generated for Rooks and Bishops.");
 
         const int relevantBits = piece == Piece::Bishop
             ? BISHOP_RELEVANT_BITS[static_cast<int>(square)]
@@ -82,13 +83,13 @@ public:
 
         for (int i = 0; i < UINT64_MAX; i++)
         {
-            uint64_t magicNumber = generateCandidateMagicNumber();
+            const uint64_t magicNumber = generateCandidateMagicNumber();
             if ((Bitboard(attackMask.getBitboard() * magicNumber).getNumberOfBitsSet() & 0xFF00000000000000ULL) < 6)
             {
                 continue;
             }
 
-            std::fill_n(std::move(usedAttacks), totalOccupancies, Bitboard(0));
+            std::fill_n(usedAttacks.get(), totalOccupancies, Bitboard(0));
 
             bool fail = false;
             for (int index = 0; index < totalOccupancies; index++)
