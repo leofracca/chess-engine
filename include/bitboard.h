@@ -13,9 +13,12 @@ namespace chess_engine
 {
 namespace board_dimensions
 {
-    constexpr int N_RANKS = 8; //< Number of ranks on a chess board.
-    constexpr int N_FILES = 8; //< Number of files on a chess board.
-    constexpr int N_SQUARES = N_RANKS * N_FILES; //< Total number of squares on a chess board (64).
+    /// Number of ranks on a chess board
+    constexpr int N_RANKS = 8;
+    /// Number of files on a chess board
+    constexpr int N_FILES = 8;
+    /// Total number of squares on a chess board (64)
+    constexpr int N_SQUARES = N_RANKS * N_FILES;
 } // namespace board_dimensions
 
 /**
@@ -355,8 +358,20 @@ public:
         return *this;
     }
 
+    /**
+     * @brief Equality operator.
+     *
+     * @param bitboard The bitboard to compare with.
+     * @return True if bitboards are equal, false otherwise.
+     */
     bool operator==(const Bitboard& bitboard) const = default;
 
+    /**
+     * @brief Inequality operator.
+     *
+     * @param bitboard The bitboard to compare with.
+     * @return True if bitboards are not equal, false otherwise.
+     */
     bool operator!=(const Bitboard& bitboard) const = default;
 
 private:

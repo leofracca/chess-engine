@@ -170,7 +170,8 @@ public:
 
 public:
     // clang-format off
-    static constexpr std::array<int, 64> BISHOP_RELEVANT_BITS = //< Number of relevant bits for bishop attacks for each square
+    /// Number of relevant bits for bishop attacks for each square
+    static constexpr std::array<int, 64> BISHOP_RELEVANT_BITS =
     {
         6, 5, 5, 5, 5, 5, 5, 6,
         5, 5, 5, 5, 5, 5, 5, 5,
@@ -181,7 +182,9 @@ public:
         5, 5, 5, 5, 5, 5, 5, 5,
         6, 5, 5, 5, 5, 5, 5, 6
     };
-    static constexpr std::array<int, 64> ROOK_RELEVANT_BITS = //< Number of relevant bits for rook attacks for each square
+
+    /// Number of relevant bits for rook attacks for each square
+    static constexpr std::array<int, 64> ROOK_RELEVANT_BITS =
     {
         12, 11, 11, 11, 11, 11, 11, 12,
         11, 10, 10, 10, 10, 10, 10, 11,
@@ -193,7 +196,8 @@ public:
         12, 11, 11, 11, 11, 11, 11, 12
     };
 
-    static constexpr std::array<Bitboard, 64> m_bishopMagicNumbers = //< Precomputed magic numbers for bishops
+    /// Precomputed magic numbers for bishops
+    static constexpr std::array<Bitboard, 64> m_bishopMagicNumbers =
     {
         0x0420041000990118ULL,
         0x0804842084010000ULL,
@@ -261,7 +265,8 @@ public:
         0x8185010811040180ULL
     };
 
-    static constexpr std::array<Bitboard, 64> m_rookMagicNumbers = //< Precomputed magic numbers for rooks
+    /// Precomputed magic numbers for rooks
+    static constexpr std::array<Bitboard, 64> m_rookMagicNumbers =
     {
         0xE280008020400014ULL,
         0x2240044010002002ULL,
@@ -330,7 +335,9 @@ public:
     };
     // clang-format on
 
-    inline static std::array<Bitboard, 64> m_bishopMagicNumbersNotPrecomputed; //< Not precomputed magic numbers for bishops
-    inline static std::array<Bitboard, 64> m_rookMagicNumbersNotPrecomputed; //< Not precomputed magic numbers for rooks
+    /// Not precomputed magic numbers for bishops
+    inline static std::array<Bitboard, 64> m_bishopMagicNumbersNotPrecomputed;
+    /// Not precomputed magic numbers for rooks
+    inline static std::array<Bitboard, 64> m_rookMagicNumbersNotPrecomputed;
 };
 } // namespace chess_engine

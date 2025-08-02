@@ -7,6 +7,12 @@
 
 namespace chess_engine
 {
+/**
+ * @brief Provides methods to generate and store precomputed moves for chess pieces.
+ *
+ * Generates pawn, knight, king, bishop, and rook attacks.
+ * It also provides methods to generate occupancy masks based on attack masks.
+ */
 class PregeneratedMoves
 {
 public:
