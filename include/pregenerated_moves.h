@@ -107,7 +107,7 @@ public:
      * @param square The square from which to generate bishop attacks.
      * @return The bitboard representing the bishop attacks from the given square.
      */
-    [[nodiscard]] static consteval Bitboard generateBishopAttacks(const Square square)
+    [[nodiscard]] static constexpr Bitboard generateBishopAttacks(const Square square)
     {
         Bitboard attacks;
 
@@ -213,7 +213,7 @@ public:
      * @param square The square from which to generate rook attacks.
      * @return The bitboard representing the rook attacks from the given square.
      */
-    [[nodiscard]] static consteval Bitboard generateRookAttacks(const Square square)
+    [[nodiscard]] static constexpr Bitboard generateRookAttacks(const Square square)
     {
         Bitboard attacks;
 

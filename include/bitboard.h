@@ -214,7 +214,7 @@ public:
      * @brief Initializes the bitboard with a given integer.
      * @param bitboard The state of the bitboard.
      */
-    explicit constexpr Bitboard(const uint64_t bitboard)
+    constexpr Bitboard(const uint64_t bitboard)
         : m_bitboard(bitboard)
     {
     }

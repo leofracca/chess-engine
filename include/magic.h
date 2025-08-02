@@ -1,8 +1,12 @@
+/**
+ * @file magic.h
+ * @brief Provides methods to generate magic numbers for rook and bishop attacks.
+ */
 #pragma once
 
 #include <cstdint>
 #include <random>
-#include <iostream>
+#include <print>
 
 #include "bitboard.h"
 #include "pregenerated_moves.h"
@@ -11,6 +15,12 @@
 
 namespace chess_engine
 {
+/**
+ * @brief The Magic class provides methods to generate magic numbers for rook and bishop attacks.
+ *
+ * Magic numbers are used in chess engines to efficiently compute attacks for rooks and bishops
+ * by mapping occupancy bitboards to attack bitboards.
+ */
 class Magic
 {
 public:
@@ -22,7 +32,7 @@ public:
      *
      * @return A randomly generated 64-bit unsigned integer.
      */
-    static constexpr uint64_t generateRandomUint64()
+    static uint64_t generateRandomUint64()
     {
         std::random_device rd;
         std::mt19937_64 gen(rd());
@@ -48,32 +58,45 @@ public:
      *
      * @return A randomly generated candidate magic number.
      */
-    static constexpr uint64_t generateCandidateMagicNumber()
+    static uint64_t generateCandidateMagicNumber()
     {
         return generateRandomUint64() & generateRandomUint64() & generateRandomUint64();
     }
 
-    static consteval uint64_t generateMagicNumber(const Square square, const Piece piece)
+    /**
+     * @brief Generates a magic number for a given square and piece.
+     *
+     * This function generates a magic number that can be used to compute attacks for rooks or bishops
+     * on the specified square. It uses a brute-force search to find a valid magic number that maps
+     * all possible occupancy bitboards to their corresponding attack bitboards without collisions.
+     *
+     * @param square The square for which to generate the magic number.
+     * @param piece The piece (Rook or Bishop) for which to generate the magic number.
+     * @return A magic number for the specified square and piece.
+     */
+    static uint64_t generateMagicNumber(const Square square, const Piece piece)
     {
-        // TODO: Add comments before I forget how this works :)
-
         // static_assert((piece == Piece::Rook || piece == Piece::Bishop),
         //               "Magic numbers can only be generated for Rooks and Bishops.");
 
+        // Determine the number of relevant occupancy bits for the given square and piece
         const int relevantBits = piece == Piece::Bishop
             ? BISHOP_RELEVANT_BITS[static_cast<int>(square)]
             : ROOK_RELEVANT_BITS[static_cast<int>(square)];
         const int totalOccupancies = 1 << relevantBits;
 
+        // Generate the attack mask for the square and piece
         const Bitboard attackMask = piece == Piece::Bishop
             ? PregeneratedMoves::generateBishopAttacks(square)
             : PregeneratedMoves::generateRookAttacks(square);
 
+        // Allocate arrays for all possible occupancies, their attacks, and used attack sets
         auto occupancies = std::make_unique<Bitboard[]>(totalOccupancies);
         auto attacks = std::make_unique<Bitboard[]>(totalOccupancies);
         auto usedAttacks = std::make_unique<Bitboard[]>(totalOccupancies);
 
-        for (int index = 0; index < relevantBits; index++)
+        // Generate all possible occupancies and their corresponding attack sets
+        for (int index = 0; index < totalOccupancies; index++)
         {
             occupancies[index] = PregeneratedMoves::generateOccupancyMask(index, attackMask);
             attacks[index] = piece == Piece::Bishop
@@ -81,27 +104,35 @@ public:
                 : PregeneratedMoves::generateRookAttacksOnTheFly(square, occupancies[index]);
         }
 
+        // Brute-force search for a suitable magic number
         for (int i = 0; i < UINT64_MAX; i++)
         {
             const uint64_t magicNumber = generateCandidateMagicNumber();
-            if ((Bitboard(attackMask.getBitboard() * magicNumber).getNumberOfBitsSet() & 0xFF00000000000000ULL) < 6)
+            // Skip candidates with too few high bits set (heuristic for better magic numbers)
+            if (Bitboard(attackMask.getBitboard() * magicNumber & 0xFF00000000000000ULL).getNumberOfBitsSet() < 6)
             {
                 continue;
             }
 
+            // Reset usedAttacks for this candidate
             std::fill_n(usedAttacks.get(), totalOccupancies, Bitboard(0));
 
             bool fail = false;
+            // Test the candidate magic number for collisions
             for (int index = 0; index < totalOccupancies; index++)
             {
                 const Bitboard occupancy = occupancies[index];
                 const Bitboard attack = attacks[index];
 
+                // Compute the magic index for this occupancy
                 const int magicIndex = (occupancy.getBitboard() * magicNumber) >> (64 - relevantBits);
+
+                // If this index is unused, store the attack set
                 if (usedAttacks[magicIndex].getBitboard() == 0)
                 {
                     usedAttacks[magicIndex] = attack;
                 }
+                // If a different attack set is already stored, this candidate fails
                 else if (usedAttacks[magicIndex] != attack)
                 {
                     fail = true;
@@ -109,17 +140,34 @@ public:
                 }
             }
 
+            // If no collisions were found, return the valid magic number
             if (!fail)
             {
-                // If we reach here, we found a valid magic number
+                std::println("Found valid magic number: 0x{:016X}ULL", magicNumber);
                 return magicNumber;
             }
         }
 
-        return 0; // If we reach here, no valid magic number was found
+        // No valid magic number found
+        return 0;
     }
 
-private:
+    /**
+     * @brief Initializes the magic numbers for bishops and rooks.
+     *
+     * This function initializes the precomputed magic numbers for bishops and rooks
+     * for all squares.
+     */
+    static void initializeMagicNumbers()
+    {
+        for (Square square = Square::a8; square <= Square::h1; square++)
+        {
+            m_bishopMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Piece::Bishop);
+            m_rookMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Piece::Rook);
+        }
+    }
+
+public:
     // clang-format off
     static constexpr std::array<int, 64> BISHOP_RELEVANT_BITS = //< Number of relevant bits for bishop attacks for each square
     {
@@ -143,6 +191,145 @@ private:
         11, 10, 10, 10, 10, 10, 10, 11,
         12, 11, 11, 11, 11, 11, 11, 12
     };
+
+    static constexpr std::array<Bitboard, 64> m_bishopMagicNumbers = //< Precomputed magic numbers for bishops
+    {
+        0x0420041000990118ULL,
+        0x0804842084010000ULL,
+        0x4008024842002008ULL,
+        0x02020A0208201241ULL,
+        0x02040420680000A6ULL,
+        0x000A01100A805002ULL,
+        0x010D1C0120081000ULL,
+        0x8040404048484000ULL,
+        0x0100514498080451ULL,
+        0x0000042818110820ULL,
+        0x0000100450802080ULL,
+        0x35C0080485100008ULL,
+        0x4000011040003104ULL,
+        0x2000211008841000ULL,
+        0x4001004108084106ULL,
+        0x0000020244041444ULL,
+        0x20048A1010100110ULL,
+        0x8020020401040110ULL,
+        0x0014008804509200ULL,
+        0x0008000405606000ULL,
+        0x00040032010C0200ULL,
+        0x4028080101080200ULL,
+        0x404100120D012018ULL,
+        0x40814C010C060100ULL,
+        0x0102C04821080200ULL,
+        0x0148208208111900ULL,
+        0x0908140002440080ULL,
+        0x02C0104254004080ULL,
+        0x2001020004028400ULL,
+        0x034200800C1000A0ULL,
+        0x4819120014220100ULL,
+        0x0000504009140204ULL,
+        0x0A01680801411080ULL,
+        0x000A120211204800ULL,
+        0xCC02202405480800ULL,
+        0x81A4110800840040ULL,
+        0x4020040820040021ULL,
+        0x0884280020020090ULL,
+        0x1490008110008400ULL,
+        0x04F0808100008400ULL,
+        0x0500828840012040ULL,
+        0x0124550808002000ULL,
+        0x0204820801040202ULL,
+        0x00000C4208000480ULL,
+        0x0200C05012100100ULL,
+        0x0402040800202200ULL,
+        0x4002101408924104ULL,
+        0xD008011512000020ULL,
+        0x000088082211C040ULL,
+        0x10008188082A0094ULL,
+        0x0821102201102000ULL,
+        0x020A1C02421A0001ULL,
+        0x48002110020888A0ULL,
+        0x08483B1041020000ULL,
+        0x0008709000831200ULL,
+        0x0060821400408000ULL,
+        0x0080841048040408ULL,
+        0x8106802202100400ULL,
+        0x20C0008500980400ULL,
+        0x80001228E0842402ULL,
+        0x0202001010020218ULL,
+        0x0044010810108080ULL,
+        0x0810462810410200ULL,
+        0x8185010811040180ULL
+    };
+
+    static constexpr std::array<Bitboard, 64> m_rookMagicNumbers = //< Precomputed magic numbers for rooks
+    {
+        0xE280008020400014ULL,
+        0x2240044010002002ULL,
+        0x1080100020008008ULL,
+        0x1100080420100101ULL,
+        0x0100030004080010ULL,
+        0x03000C0002010008ULL,
+        0x2080008001000200ULL,
+        0x2100030001506482ULL,
+        0x8400802080004000ULL,
+        0x0000401000200044ULL,
+        0x0003801000842008ULL,
+        0x0102000A00402014ULL,
+        0x010A000410220008ULL,
+        0x0412000200100508ULL,
+        0x1004004194081012ULL,
+        0x00008000800F6100ULL,
+        0x0080084000502000ULL,
+        0x0A80210040010080ULL,
+        0x0006410020001104ULL,
+        0x0100828010000801ULL,
+        0x14A0808008000401ULL,
+        0x4028808004000200ULL,
+        0x0880040001100208ULL,
+        0x00242A0004A90444ULL,
+        0x1040004080002080ULL,
+        0x081000414002200CULL,
+        0x0015001100200040ULL,
+        0x0090000808010080ULL,
+        0x0408040080800800ULL,
+        0x1002000200100805ULL,
+        0x8011000100020004ULL,
+        0x0000649200010044ULL,
+        0xC140400081800220ULL,
+        0x8088200044401000ULL,
+        0x000A200041001100ULL,
+        0x4200100084800800ULL,
+        0x0008040080800800ULL,
+        0x0010020080800400ULL,
+        0x1200880104001002ULL,
+        0x0100040082000041ULL,
+        0x0080010080410021ULL,
+        0x4000500020004000ULL,
+        0x2980200304110040ULL,
+        0x0040100008008080ULL,
+        0x1000100801010004ULL,
+        0x0010020004008080ULL,
+        0x0004080210040081ULL,
+        0x0149241040820005ULL,
+        0x110D448A02650200ULL,
+        0x0240400081002500ULL,
+        0x0408402481120200ULL,
+        0x2102210010000900ULL,
+        0x0018008004000880ULL,
+        0x0008800200040080ULL,
+        0x0060821849100400ULL,
+        0x0001002080420100ULL,
+        0x2440410200228416ULL,
+        0x0C81008028104001ULL,
+        0x0800800840120022ULL,
+        0x4146000810044022ULL,
+        0x000200100460C802ULL,
+        0x0101000400020801ULL,
+        0x0881004402000CA1ULL,
+        0x0003070040218402ULL
+    };
     // clang-format on
+
+    inline static std::array<Bitboard, 64> m_bishopMagicNumbersNotPrecomputed; //< Not precomputed magic numbers for bishops
+    inline static std::array<Bitboard, 64> m_rookMagicNumbersNotPrecomputed; //< Not precomputed magic numbers for rooks
 };
 } // namespace chess_engine
