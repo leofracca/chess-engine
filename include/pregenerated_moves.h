@@ -333,30 +333,5 @@ private:
     static constexpr Bitboard NOT_H_FILE{9187201950435737471ULL}; //< All squares set to 1 except the 'h' file
     static constexpr Bitboard NOT_AB_FILE{18229723555195321596ULL}; //< All squares set to 1 except the 'a' and 'b' files
     static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares set to 1 except the 'h' and 'g' files
-
-    // clang-format off
-    static constexpr std::array<int, 64> BISHOP_RELEVANT_BITS = //< Number of relevant bits for bishop attacks for each square
-    {
-        6, 5, 5, 5, 5, 5, 5, 6,
-        5, 5, 5, 5, 5, 5, 5, 5,
-        5, 5, 7, 7, 7, 7, 5, 5,
-        5, 5, 7, 9, 9, 7, 5, 5,
-        5, 5, 7, 9, 9, 7, 5, 5,
-        5, 5, 7, 7, 7, 7, 5, 5,
-        5, 5, 5, 5, 5, 5, 5, 5,
-        6, 5, 5, 5, 5, 5, 5, 6
-    };
-    static constexpr std::array<int, 64> ROOK_RELEVANT_BITS = //< Number of relevant bits for rook attacks for each square
-    {
-        12, 11, 11, 11, 11, 11, 11, 12,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        12, 11, 11, 11, 11, 11, 11, 12
-    };
-    // clang-format on
 };
 } // namespace chess_engine
