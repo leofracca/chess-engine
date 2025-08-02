@@ -1,6 +1,7 @@
 /**
  * @file magic.h
  * @brief Provides methods to generate magic numbers for rook and bishop attacks.
+ * @note Magic numbers are already precomputed, so this class is primarily used for generating new magic numbers if needed.
  */
 #pragma once
 
