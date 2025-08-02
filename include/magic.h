@@ -6,13 +6,12 @@
 #pragma once
 
 #include <cstdint>
-#include <random>
+#include <memory>
 #include <print>
+#include <random>
 
 #include "bitboard.h"
-#include "pregenerated_moves.h"
-
-#include <memory>
+#include "slider_utils.h"
 
 namespace chess_engine
 {
@@ -82,14 +81,14 @@ public:
 
         // Determine the number of relevant occupancy bits for the given square and piece
         const int relevantBits = piece == Piece::Bishop
-            ? BISHOP_RELEVANT_BITS[static_cast<int>(square)]
-            : ROOK_RELEVANT_BITS[static_cast<int>(square)];
+            ? slider_utils::BISHOP_RELEVANT_BITS[static_cast<int>(square)]
+            : slider_utils::ROOK_RELEVANT_BITS[static_cast<int>(square)];
         const int totalOccupancies = 1 << relevantBits;
 
         // Generate the attack mask for the square and piece
         const Bitboard attackMask = piece == Piece::Bishop
-            ? PregeneratedMoves::generateBishopAttacks(square)
-            : PregeneratedMoves::generateRookAttacks(square);
+            ? slider_utils::generateBishopAttacks(square)
+            : slider_utils::generateRookAttacks(square);
 
         // Allocate arrays for all possible occupancies, their attacks, and used attack sets
         auto occupancies = std::make_unique<Bitboard[]>(totalOccupancies);
@@ -99,10 +98,10 @@ public:
         // Generate all possible occupancies and their corresponding attack sets
         for (int index = 0; index < totalOccupancies; index++)
         {
-            occupancies[index] = PregeneratedMoves::generateOccupancyMask(index, attackMask);
+            occupancies[index] = slider_utils::generateOccupancyMask(index, attackMask);
             attacks[index] = piece == Piece::Bishop
-                ? PregeneratedMoves::generateBishopAttacksOnTheFly(square, occupancies[index])
-                : PregeneratedMoves::generateRookAttacksOnTheFly(square, occupancies[index]);
+                ? slider_utils::generateBishopAttacksOnTheFly(square, occupancies[index])
+                : slider_utils::generateRookAttacksOnTheFly(square, occupancies[index]);
         }
 
         // Brute-force search for a suitable magic number
@@ -170,32 +169,6 @@ public:
 
 public:
     // clang-format off
-    /// Number of relevant bits for bishop attacks for each square
-    static constexpr std::array<int, 64> BISHOP_RELEVANT_BITS =
-    {
-        6, 5, 5, 5, 5, 5, 5, 6,
-        5, 5, 5, 5, 5, 5, 5, 5,
-        5, 5, 7, 7, 7, 7, 5, 5,
-        5, 5, 7, 9, 9, 7, 5, 5,
-        5, 5, 7, 9, 9, 7, 5, 5,
-        5, 5, 7, 7, 7, 7, 5, 5,
-        5, 5, 5, 5, 5, 5, 5, 5,
-        6, 5, 5, 5, 5, 5, 5, 6
-    };
-
-    /// Number of relevant bits for rook attacks for each square
-    static constexpr std::array<int, 64> ROOK_RELEVANT_BITS =
-    {
-        12, 11, 11, 11, 11, 11, 11, 12,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        11, 10, 10, 10, 10, 10, 10, 11,
-        12, 11, 11, 11, 11, 11, 11, 12
-    };
-
     /// Precomputed magic numbers for bishops
     static constexpr std::array<Bitboard, 64> m_bishopMagicNumbers =
     {

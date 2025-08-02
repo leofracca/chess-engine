@@ -1,9 +1,11 @@
 #pragma once
 
+#include <array>
+
 #include "bitboard.h"
 #include "board.h"
-
-#include <array>
+#include "magic.h"
+#include "slider_utils.h"
 
 namespace chess_engine
 {
@@ -107,226 +109,55 @@ public:
         return attacks;
     }
 
-    /**
-     * @brief Generates bishop attacks for a given square.
-     *
-     * @param square The square from which to generate bishop attacks.
-     * @return The bitboard representing the bishop attacks from the given square.
-     */
-    [[nodiscard]] static constexpr Bitboard generateBishopAttacks(const Square square)
+    constexpr void InitSliderAttacks()
     {
-        Bitboard attacks;
+        initSlider(
+                slider_utils::generateBishopAttacks,
+                slider_utils::generateBishopAttacksOnTheFly,
+                m_bishopAttacksMasks,
+                m_bishopAttacks,
+                Magic::m_bishopMagicNumbers,
+                slider_utils::BISHOP_RELEVANT_BITS);
 
-        // Get rank and file of the square
-        const Square rank = square / board_dimensions::N_RANKS;
-        const Square file = square % board_dimensions::N_FILES;
-
-        // Generate attacks in all four diagonal directions
-        for (Square r = rank + 1, f = file + 1;
-            r < board_dimensions::N_RANKS - 1 && f < board_dimensions::N_FILES - 1;
-            r++, f++)
-        {
-            attacks.setBit(r * board_dimensions::N_FILES + f); // Down-right diagonal
-        }
-
-        for (Square r = rank - 1, f = file + 1;
-            r > 0 && f < board_dimensions::N_FILES - 1;
-            r--, f++)
-        {
-            attacks.setBit(r * board_dimensions::N_FILES + f); // Up-right diagonal
-        }
-
-        for (Square r = rank + 1, f = file - 1;
-            r < board_dimensions::N_RANKS - 1 && f > 0;
-            r++, f--)
-        {
-            attacks.setBit(r * board_dimensions::N_FILES + f); // Down-left diagonal
-        }
-
-        for (Square r = rank - 1, f = file - 1;
-            r > 0 && f > 0;
-            r--, f--)
-        {
-            attacks.setBit(r * board_dimensions::N_FILES + f); // Up-left diagonal
-        }
-
-        return attacks;
+        initSlider(
+                slider_utils::generateRookAttacks,
+                slider_utils::generateRookAttacksOnTheFly,
+                m_rookAttacksMasks,
+                m_rookAttacks,
+                Magic::m_rookMagicNumbers,
+                slider_utils::ROOK_RELEVANT_BITS);
     }
 
-    /**
-     * @brief Generates bishop attacks on the fly for a given square considering occupied squares.
-     *        If the square is occupied, it stops generating attacks in that direction.
-     *
-     * @param square The square from which to generate bishop attacks.
-     * @param occupied The bitboard representing occupied squares.
-     * @return The bitboard representing the bishop attacks from the given square.
-     */
-    [[nodiscard]] static constexpr Bitboard generateBishopAttacksOnTheFly(const Square square, const Bitboard occupied)
+private:
+    template<typename GenerateAttacks, typename GenerateAttacksOnTheFly, typename AttackMasks, typename Attacks, typename MagicNumbers, typename RelevantBits>
+    static constexpr void initSlider(
+            GenerateAttacks generateAttacks,
+            GenerateAttacksOnTheFly generateAttacksOnTheFly,
+            AttackMasks& attackMasks,
+            Attacks& attacks,
+            const MagicNumbers& magicNumbers,
+            const RelevantBits& relevantBitsArray)
     {
-        Bitboard attacks;
-
-        // Get rank and file of the square
-        const Square rank = square / board_dimensions::N_RANKS;
-        const Square file = square % board_dimensions::N_FILES;
-
-        // Generate attacks in all four diagonal directions
-        for (Square r = rank + 1, f = file + 1;
-            r < board_dimensions::N_RANKS && f < board_dimensions::N_FILES;
-            r++, f++)
+        for (Square square = Square::a8; square <= Square::h1; square++)
         {
-            const Square targetSquare = r * board_dimensions::N_FILES + f;
-            attacks.setBit(targetSquare);
-            if (occupied.getBit(targetSquare))
-                break; // Stop if we hit an occupied square
-        }
+            // Get all possible attacks for the square
+            attackMasks[static_cast<int>(square)] = generateAttacks(square);
 
-        for (Square r = rank - 1, f = file + 1;
-            r >= 0 && f < board_dimensions::N_FILES;
-            r--, f++)
-        {
-            const Square targetSquare = r * board_dimensions::N_FILES + f;
-            attacks.setBit(targetSquare);
-            if (occupied.getBit(targetSquare))
-                break;
-        }
+            // Determine the number of relevant occupancy bits for the given square and piece
+            // (how many different blocker configurations can exist for this square)
+            const int relevantBits = relevantBitsArray[static_cast<int>(square)];
+            const int totalOccupancies = 1 << relevantBits;
 
-        for (Square r = rank + 1, f = file - 1;
-            r < board_dimensions::N_RANKS && f >= 0;
-            r++, f--)
-        {
-            const Square targetSquare = r * board_dimensions::N_FILES + f;
-            attacks.setBit(targetSquare);
-            if (occupied.getBit(targetSquare))
-                break;
-        }
-
-        for (Square r = rank - 1, f = file - 1;
-            r >= 0 && f >= 0;
-            r--, f--)
-        {
-            const Square targetSquare = r * board_dimensions::N_FILES + f;
-            attacks.setBit(targetSquare);
-            if (occupied.getBit(targetSquare))
-                break;
-        }
-
-        return attacks;
-    }
-
-    /**
-     * @brief Generates rook attacks for a given square.
-     *
-     * @param square The square from which to generate rook attacks.
-     * @return The bitboard representing the rook attacks from the given square.
-     */
-    [[nodiscard]] static constexpr Bitboard generateRookAttacks(const Square square)
-    {
-        Bitboard attacks;
-
-        // Get rank and file of the square
-        const Square rank = square / board_dimensions::N_RANKS;
-        const Square file = square % board_dimensions::N_FILES;
-
-        // Generate attacks in all four straight directions
-        for (Square r = rank + 1; r < board_dimensions::N_RANKS - 1; r++)
-        {
-            attacks.setBit(r * board_dimensions::N_FILES + file); // Down
-        }
-
-        for (Square r = rank - 1; r > 0; r--)
-        {
-            attacks.setBit(r * board_dimensions::N_FILES + file); // Up
-        }
-
-        for (Square f = file + 1; f < board_dimensions::N_FILES - 1; f++)
-        {
-            attacks.setBit(rank * board_dimensions::N_RANKS + f); // Right
-        }
-
-        for (Square f = file - 1; f > 0; f--)
-        {
-            attacks.setBit(rank * board_dimensions::N_RANKS + f); // Left
-        }
-
-        return attacks;
-    }
-
-    /**
-     * @brief Generates rook attacks on the fly for a given square considering occupied squares.
-     *        If the square is occupied, it stops generating attacks in that direction.
-     *
-     * @param square The square from which to generate rook attacks.
-     * @param occupied The bitboard representing occupied squares.
-     * @return The bitboard representing the rook attacks from the given square.
-     */
-    [[nodiscard]] static constexpr Bitboard generateRookAttacksOnTheFly(const Square square, const Bitboard occupied)
-    {
-        Bitboard attacks;
-
-        // Get rank and file of the square
-        const Square rank = square / board_dimensions::N_RANKS;
-        const Square file = square % board_dimensions::N_FILES;
-
-        // Generate attacks in all four straight directions
-        for (Square r = rank + 1; r < board_dimensions::N_RANKS; r++)
-        {
-            const Square targetSquare = r * board_dimensions::N_FILES + file;
-            attacks.setBit(targetSquare);
-            if (occupied.getBit(targetSquare))
-                break; // Stop if we hit an occupied square
-        }
-
-        for (Square r = rank - 1; r >= 0; r--)
-        {
-            const Square targetSquare = r * board_dimensions::N_FILES + file;
-            attacks.setBit(targetSquare);
-            if (occupied.getBit(targetSquare))
-                break;
-        }
-
-        for (Square f = file + 1; f < board_dimensions::N_FILES; f++)
-        {
-            const Square targetSquare = rank * board_dimensions::N_RANKS + f;
-            attacks.setBit(targetSquare);
-            if (occupied.getBit(targetSquare))
-                break;
-        }
-
-        for (Square f = file - 1; f >= 0; f--)
-        {
-            const Square targetSquare = rank * board_dimensions::N_RANKS + f;
-            attacks.setBit(targetSquare);
-            if (occupied.getBit(targetSquare))
-                break;
-        }
-
-        return attacks;
-    }
-
-    /**
-     * @brief Generates occupancy mask for a given index and attack mask.
-     *
-     * @param index The index representing the occupancy configuration.
-     * @param attackMask The bitboard representing the attack mask.
-     * @return The bitboard representing the occupancy mask.
-     */
-    [[nodiscard]] static constexpr Bitboard generateOccupancyMask(const int index, Bitboard attackMask)
-    {
-        Bitboard occupancyMask;
-
-        const int relevantBits = attackMask.getNumberOfBitsSet();
-        for (int i = 0; i < relevantBits; i++)
-        {
-            const Square square = attackMask.getSquareOfLeastSignificantBitIndex();
-            attackMask.clearBit(square);
-
-            if (index & (1 << i))
+            for (int index = 0; index < totalOccupancies; index++)
             {
-                occupancyMask.setBit(square);
+                // Determine the number of relevant occupancy bits for the given square and piece
+                // (how many different blocker configurations can exist for this square)
+                Bitboard occupancy = slider_utils::generateOccupancyMask(index, attackMasks[static_cast<int>(square)]);
+                int magicIndex = (occupancy.getBitboard() * magicNumbers[static_cast<int>(square)].getBitboard()) >> (64 - relevantBits);
+                // Save the set of squares that can be attacked given a specific blocker configuration for the square
+                attacks[static_cast<int>(square)][magicIndex] = generateAttacksOnTheFly(square, occupancy);
             }
         }
-
-        return occupancyMask;
     }
 
 private:
@@ -334,6 +165,11 @@ private:
     std::array<Bitboard, 64> m_blackPawnsAttacks; //< Precomputed pawn attacks for black pawns
     std::array<Bitboard, 64> m_knightAttacks; //< Precomputed knight attacks
     std::array<Bitboard, 64> m_kingAttacks; //< Precomputed king attacks
+    std::array<std::array<Bitboard, 64>, 512> m_bishopAttacks; //< Precomputed bishop attacks ([square][occupancy])
+    std::array<std::array<Bitboard, 64>, 4096> m_rookAttacks; //< Precomputed rook attacks ([square][occupancy])
+
+    std::array<Bitboard, 64> m_bishopAttacksMasks;
+    std::array<Bitboard, 64> m_rookAttacksMasks;
 
     static constexpr Bitboard NOT_A_FILE{18374403900871474942ULL}; //< All squares set to 1 except the 'a' file
     static constexpr Bitboard NOT_H_FILE{9187201950435737471ULL}; //< All squares set to 1 except the 'h' file
