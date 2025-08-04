@@ -359,6 +359,17 @@ public:
     }
 
     /**
+     * @brief Bitwise OR operator.
+     *
+     * @param other The other bitboard to OR with.
+     * @return The result of the OR operation as a new Bitboard.
+     */
+    constexpr Bitboard operator|(const Bitboard& other) const
+    {
+        return {m_bitboard | other.m_bitboard};
+    }
+
+    /**
      * @brief Equality operator.
      *
      * @param bitboard The bitboard to compare with.
