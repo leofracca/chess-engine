@@ -18,15 +18,13 @@ namespace chess_engine
 class PregeneratedMoves
 {
 public:
-    consteval PregeneratedMoves()
+    /**
+     * @brief Initializes the PregeneratedMoves class.
+     */
+    constexpr PregeneratedMoves()
     {
-        for (int i = 0; i < board_dimensions::N_SQUARES; ++i)
-        {
-            m_whitePawnsAttacks[i] = generatePawnAttacks(Side::White, static_cast<Square>(i));
-            m_blackPawnsAttacks[i] = generatePawnAttacks(Side::Black, static_cast<Square>(i));
-            m_knightAttacks[i] = generateKnightAttacks(static_cast<Square>(i));
-            m_kingAttacks[i] = generateKingAttacks(static_cast<Square>(i));
-        }
+        initLeaperAttacks();
+        initSliderAttacks();
     }
 
     /**
@@ -36,7 +34,7 @@ public:
      * @param square The square from which to generate pawn attacks.
      * @return The bitboard representing the pawn attacks from the given square.
      */
-    [[nodiscard]] static consteval Bitboard generatePawnAttacks(const Side side, const Square square)
+    [[nodiscard]] static constexpr Bitboard generatePawnAttacks(const Side side, const Square square)
     {
         const Bitboard bitboard(square);
         Bitboard attacks;
@@ -61,7 +59,7 @@ public:
      * @param square The square from which to generate knight attacks.
      * @return The bitboard representing the knight attacks from the given square.
      */
-    [[nodiscard]] static consteval Bitboard generateKnightAttacks(const Square square)
+    [[nodiscard]] static constexpr Bitboard generateKnightAttacks(const Square square)
     {
         const Bitboard bitboard(square);
         Bitboard attacks;
@@ -87,7 +85,7 @@ public:
      * @param square The square from which to generate king attacks.
      * @return The bitboard representing the king attacks from the given square.
      */
-    [[nodiscard]] static consteval Bitboard generateKingAttacks(const Square square)
+    [[nodiscard]] static constexpr Bitboard generateKingAttacks(const Square square)
     {
         const Bitboard bitboard(square);
         Bitboard attacks;
@@ -109,7 +107,46 @@ public:
         return attacks;
     }
 
-    constexpr void InitSliderAttacks()
+    [[nodiscard]] Bitboard getBishopAttacks(const Square square, const Bitboard occupancy) const
+    {
+        // Get the number of relevant occupancy bits for the given square
+        const int relevantBits = slider_utils::BISHOP_RELEVANT_BITS[std::to_underlying(square)];
+        // Calculate the magic index based on the occupancy and the precomputed magic number
+        const int magicIndex = (occupancy.getBitboard() & m_bishopAttacksMasks[std::to_underlying(square)].getBitboard()) *
+                                       Magic::m_bishopMagicNumbers[std::to_underlying(square)].getBitboard() >>
+                               (64 - relevantBits);
+        return m_bishopAttacks[std::to_underlying(square)][magicIndex];
+    }
+
+    [[nodiscard]] Bitboard getRookAttacks(const Square square, const Bitboard occupancy) const
+    {
+        // Get the number of relevant occupancy bits for the given square
+        const int relevantBits = slider_utils::ROOK_RELEVANT_BITS[std::to_underlying(square)];
+        // Calculate the magic index based on the occupancy and the precomputed magic number
+        const int magicIndex = (occupancy.getBitboard() & m_rookAttacksMasks[std::to_underlying(square)].getBitboard()) *
+                                       Magic::m_rookMagicNumbers[std::to_underlying(square)].getBitboard() >>
+                               (64 - relevantBits);
+        return m_rookAttacks[std::to_underlying(square)][magicIndex];
+    }
+
+    [[nodiscard]] Bitboard getQueenAttacks(const Square square, const Bitboard occupancy) const
+    {
+        // Queen attacks are a combination of bishop and rook attacks
+        return getBishopAttacks(square, occupancy) | getRookAttacks(square, occupancy);
+    }
+
+    constexpr void initLeaperAttacks()
+    {
+        for (int i = 0; i < board_dimensions::N_SQUARES; ++i)
+        {
+            m_whitePawnsAttacks[i] = generatePawnAttacks(Side::White, static_cast<Square>(i));
+            m_blackPawnsAttacks[i] = generatePawnAttacks(Side::Black, static_cast<Square>(i));
+            m_knightAttacks[i] = generateKnightAttacks(static_cast<Square>(i));
+            m_kingAttacks[i] = generateKingAttacks(static_cast<Square>(i));
+        }
+    }
+
+    constexpr void initSliderAttacks()
     {
         initSlider(
                 slider_utils::generateBishopAttacks,
@@ -165,8 +202,8 @@ private:
     std::array<Bitboard, 64> m_blackPawnsAttacks; //< Precomputed pawn attacks for black pawns
     std::array<Bitboard, 64> m_knightAttacks; //< Precomputed knight attacks
     std::array<Bitboard, 64> m_kingAttacks; //< Precomputed king attacks
-    std::array<std::array<Bitboard, 64>, 512> m_bishopAttacks; //< Precomputed bishop attacks ([square][occupancy])
-    std::array<std::array<Bitboard, 64>, 4096> m_rookAttacks; //< Precomputed rook attacks ([square][occupancy])
+    std::array<std::array<Bitboard, 512>, 64> m_bishopAttacks; //< Precomputed bishop attacks ([square][occupancy])
+    std::array<std::array<Bitboard, 4096>, 64> m_rookAttacks; //< Precomputed rook attacks ([square][occupancy])
 
     std::array<Bitboard, 64> m_bishopAttacksMasks;
     std::array<Bitboard, 64> m_rookAttacksMasks;
