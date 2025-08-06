@@ -1,6 +1,7 @@
 #include <print>
 
 #include "board.h"
+#include "pregenerated_moves.h"
 
 namespace chess_engine
 {
@@ -157,5 +158,59 @@ void Board::parseFENString(const std::string& fenString)
         occupancies[std::to_underlying(Side::Black)] |= bitboardsPieces[std::to_underlying(piece)];
     }
     occupancies[std::to_underlying(Side::WhiteAndBlack)] = occupancies[std::to_underlying(Side::White)] | occupancies[std::to_underlying(Side::Black)];
+}
+
+bool Board::isSquareAttacked(const Square square, const Side side) const
+{
+    PieceWithColor piece = PieceWithColor::InvalidPiece;
+    constexpr Bitboard empty;
+
+    if (side == Side::White)
+    {
+        piece = PieceWithColor::WhitePawn;
+        if ((pregenerated_moves::m_blackPawnsAttacks[std::to_underlying(square)] & bitboardsPieces[std::to_underlying(piece)]) != empty)
+            return true;
+    }
+    else
+    {
+        piece = PieceWithColor::BlackPawn;
+        if ((pregenerated_moves::m_whitePawnsAttacks[std::to_underlying(square)] & bitboardsPieces[std::to_underlying(piece)]) != empty)
+            return true;
+    }
+
+    piece = side == Side::White ? PieceWithColor::WhiteKnight : PieceWithColor::BlackKnight;
+    if ((pregenerated_moves::m_knightAttacks[std::to_underlying(square)] & bitboardsPieces[std::to_underlying(piece)]) != empty)
+        return true;
+
+    piece = side == Side::White ? PieceWithColor::WhiteBishop : PieceWithColor::BlackBishop;
+    if ((pregenerated_moves::getBishopAttacks(square, occupancies[std::to_underlying(Side::WhiteAndBlack)]) & bitboardsPieces[std::to_underlying(piece)]) != empty)
+        return true;
+
+    piece = side == Side::White ? PieceWithColor::WhiteRook : PieceWithColor::BlackRook;
+    if ((pregenerated_moves::getRookAttacks(square, occupancies[std::to_underlying(Side::WhiteAndBlack)]) & bitboardsPieces[std::to_underlying(piece)]) != empty)
+        return true;
+
+    piece = side == Side::White ? PieceWithColor::WhiteQueen : PieceWithColor::BlackQueen;
+    if ((pregenerated_moves::getQueenAttacks(square, occupancies[std::to_underlying(Side::WhiteAndBlack)]) & bitboardsPieces[std::to_underlying(piece)]) != empty)
+        return true;
+
+    piece = side == Side::White ? PieceWithColor::WhiteKing : PieceWithColor::BlackKing;
+    if ((pregenerated_moves::m_kingAttacks[std::to_underlying(square)] & bitboardsPieces[std::to_underlying(piece)]) != empty)
+        return true;
+
+    return false;
+}
+
+void Board::printAttackedSquares(const Side side) const
+{
+    for (int rank = 0; rank < board_dimensions::N_RANKS; rank++)
+    {
+        for (int file = 0; file < board_dimensions::N_FILES; file++)
+        {
+            const Square square = static_cast<Square>(rank * board_dimensions::N_FILES + file);
+            std::print("{}", isSquareAttacked(square, side) ? 1 : 0);
+        }
+        std::println();
+    }
 }
 } // namespace chess_engine

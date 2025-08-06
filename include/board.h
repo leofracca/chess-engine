@@ -165,6 +165,23 @@ public:
      */
     void parseFENString(const std::string& fenString);
 
+    /**
+     * @brief Check if a square is attacked by a given side.
+     *
+     * @param square The square to check for attacks.
+     * @param side The side to check for attacks.
+     * @return True if the square is attacked by the given side, false otherwise.
+     */
+    bool isSquareAttacked(Square square, Side side) const;
+
+    /**
+     * @brief Print all squares attacked by a given side.
+     * Used for debugging purposes.
+     *
+     * @param side The side for which to print attacked squares.
+     */
+    void printAttackedSquares(Side side) const;
+
 private:
     /**
      * @brief Convert a PieceWithColor to its corresponding FEN character.
@@ -218,6 +235,7 @@ private:
     }
 
 private:
+public:
     static constexpr int N_ALL_PIECES = 12; //< 6 pieces for each side
     static constexpr int N_SIDES = 3; //< White, Black, and both sides combined
 
