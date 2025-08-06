@@ -235,17 +235,16 @@ private:
     }
 
 private:
-public:
     static constexpr int N_ALL_PIECES = 12; //< 6 pieces for each side
     static constexpr int N_SIDES = 3; //< White, Black, and both sides combined
 
-    std::array<Bitboard, N_ALL_PIECES> bitboardsPieces; //< Bitboards for each piece type
-    std::array<Bitboard, N_SIDES> occupancies; //< Occupancies for each side
+    std::array<Bitboard, N_ALL_PIECES> m_bitboardsPieces; //< Bitboards for each piece type
+    std::array<Bitboard, N_SIDES> m_occupancies; //< Occupancies for each side
 
-    Side sideToMove; //< Side to move
-    CastlingRights castlingRights; //< Castling rights for both sides
-    Square enPassantSquare; //< En passant square, if any
-    int halfMoveClock; //< Half-move clock for the fifty-move rule
-    int fullMoveNumber; //< Full move number
+    Side m_sideToMove; //< Side to move
+    CastlingRights m_castlingRights; //< Castling rights for both sides
+    Square m_enPassantSquare; //< En passant square, if any
+    int m_halfMoveClock; //< Half-move clock for the fifty-move rule
+    int m_fullMoveNumber; //< Full move number
 };
 } // namespace chess_engine
