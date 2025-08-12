@@ -105,6 +105,16 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
     return attacks;
 }
 
+[[nodiscard]] constexpr Bitboard getKnightAttacks(const Square square, const Bitboard occupancy)
+{
+    // Knight attacks do not depend on occupancy, so we can return the precomputed attacks directly
+    // The occupancy parameter is included for consistency with other piece attack functions
+    (void)occupancy; // Avoid unused parameter warning
+
+    // Knight attacks are precomputed for each square
+    return knightAttacks[std::to_underlying(square)];
+}
+
 [[nodiscard]] constexpr Bitboard getBishopAttacks(const Square square, const Bitboard occupancy)
 {
     // Get the number of relevant occupancy bits for the given square
@@ -131,6 +141,16 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
 {
     // Queen attacks are a combination of bishop and rook attacks
     return getBishopAttacks(square, occupancy) | getRookAttacks(square, occupancy);
+}
+
+[[nodiscard]] constexpr Bitboard getKingAttacks(const Square square, const Bitboard occupancy)
+{
+    // King attacks do not depend on occupancy, so we can return the precomputed attacks directly
+    // The occupancy parameter is included for consistency with other piece attack functions
+    (void)occupancy; // Avoid unused parameter warning
+
+    // King attacks are precomputed for each square
+    return kingAttacks[std::to_underlying(square)];
 }
 
 constexpr void initLeaperAttacks()

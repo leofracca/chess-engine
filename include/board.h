@@ -4,119 +4,16 @@
  */
 #pragma once
 
-#include <string>
 #include <array>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "bitboard.h"
+#include "move.h"
 
-namespace  chess_engine
+namespace chess_engine
 {
-/**
- * @brief White and Black sides.
- */
-enum class Side : int
-{
-    White,
-    Black,
-    WhiteAndBlack
-};
-
-/**
- * @brief Pieces definitions.
- */
-enum class Piece : int
-{
-    Pawn,
-    Knight,
-    Bishop,
-    Rook,
-    Queen,
-    King
-};
-
-/**
- * @brief Pieces with color definitions.
- */
-enum class PieceWithColor : int
-{
-    WhitePawn,
-    WhiteKnight,
-    WhiteBishop,
-    WhiteRook,
-    WhiteQueen,
-    WhiteKing,
-    BlackPawn,
-    BlackKnight,
-    BlackBishop,
-    BlackRook,
-    BlackQueen,
-    BlackKing,
-    InvalidPiece
-};
-
-/**
- * @brief Overloaded begin function for PieceWithColor enumeration.
- *
- * Needed to allow iteration over PieceWithColor using range-based for loops.
- *
- * @return The first and last piece in the enumeration.
- */
-inline PieceWithColor begin(PieceWithColor)
-{
-    return PieceWithColor::WhitePawn;
-}
-
-/**
- * @brief Overloaded end function for PieceWithColor enumeration.
- *
- * Needed to allow iteration over PieceWithColor using range-based for loops.
- *
- * @return The last piece in the enumeration.
- */
-inline PieceWithColor end(PieceWithColor)
-{
-    return PieceWithColor::InvalidPiece;
-}
-
-/**
- * @brief Overloaded prefix increment operator for PieceWithColor enumeration.
- *
- * @param piece The current piece.
- * @return The next piece.
- */
-inline PieceWithColor& operator++(PieceWithColor& piece)
-{
-    piece = static_cast<PieceWithColor>(std::to_underlying(piece) + 1);
-    return piece;
-}
-
-/**
- * @brief Overloaded postfix increment operator for PieceWithColor enumeration.
- *
- * @param piece The current piece.
- * @return The piece before incrementing.
- */
-inline PieceWithColor operator++(PieceWithColor& piece, int)
-{
-    const PieceWithColor temp = piece;
-    ++piece;
-    return temp;
-}
-
-/**
- * @brief Overloaded dereference operator for PieceWithColor.
- *
- * Needed to allow iteration over PieceWithColor using range-based for loops.
- *
- * @param piece The piece to return.
- * @return The same piece.
- */
-inline PieceWithColor operator*(const PieceWithColor piece)
-{
-    return piece;
-}
-
 /**
  * @brief Castling rights for both sides.
  */
@@ -140,6 +37,18 @@ inline CastlingRights& operator|=(CastlingRights& lhs, const CastlingRights rhs)
 {
     lhs = static_cast<CastlingRights>(std::to_underlying(lhs) | std::to_underlying(rhs));
     return lhs;
+}
+
+/**
+ * @brief Overloaded bitwise AND operator for CastlingRights.
+ *
+ * @param lhs The left-hand side CastlingRights.
+ * @param rhs The right-hand side CastlingRights to combine with lhs.
+ * @return The result of the AND operation between lhs and rhs as an unsigned integer.
+ */
+inline uint operator&(const CastlingRights lhs, const CastlingRights rhs)
+{
+    return (std::to_underlying(lhs) & std::to_underlying(rhs));
 }
 
 /**
@@ -172,7 +81,7 @@ public:
      * @param side The side to check for attacks.
      * @return True if the square is attacked by the given side, false otherwise.
      */
-    bool isSquareAttacked(Square square, Side side) const;
+    [[nodiscard]] bool isSquareAttacked(Square square, Side side) const;
 
     /**
      * @brief Print all squares attacked by a given side.
@@ -181,6 +90,12 @@ public:
      * @param side The side for which to print attacked squares.
      */
     void printAttackedSquares(Side side) const;
+
+    /**
+     * @brief Generate all possible moves for the current board state.
+     * This function will populate the internal move list with all legal moves.
+     */
+    void generateMoves();
 
 private:
     /**
@@ -234,6 +149,36 @@ private:
         }
     }
 
+    /**
+     * @brief Generate moves for pawns of a given side.
+     *
+     * @param piece The piece for which to generate pawn moves (i.e., WhitePawn or BlackPawn).
+     */
+    inline void generatePawnMoves(PieceWithColor piece);
+
+    /**
+     * @brief Generate castling moves for the king of a given side.
+     *
+     * @param piece The piece for which to generate castling moves (i.e., WhiteKing or BlackKing).
+     */
+    inline void generateKingCastlingMoves(PieceWithColor piece);
+
+    /**
+     * @brief Generate moves for a specific piece with color.
+     *
+     * This function will generate all possible moves for the given piece,
+     * taking into account the current board state, including occupied squares,
+     * attacks, and castling rights.
+     *
+     * Moves for pawns are handled separately in `generatePawnMoves`.
+     * Castling moves are handled in `generateKingCastlingMoves`.
+     *
+     * @param piece The piece with color for which to generate moves.
+     * @see generatePawnMoves
+     * @see generateKingCastlingMoves
+     */
+    inline void generatePieceMoves(PieceWithColor piece);
+
 private:
     static constexpr int N_ALL_PIECES = 12; //< 6 pieces for each side
     static constexpr int N_SIDES = 3; //< White, Black, and both sides combined
@@ -246,5 +191,8 @@ private:
     Square m_enPassantSquare; //< En passant square, if any
     int m_halfMoveClock; //< Half-move clock for the fifty-move rule
     int m_fullMoveNumber; //< Full move number
+
+    // TODO: Currently using a vector. Profile to check if a fixed-size and a counting approach is faster.
+    std::vector<Move> m_moves; //< List of generated moves
 };
 } // namespace chess_engine
