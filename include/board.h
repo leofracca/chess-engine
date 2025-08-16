@@ -40,6 +40,19 @@ inline CastlingRights& operator|=(CastlingRights& lhs, const CastlingRights rhs)
 }
 
 /**
+ * @brief Overloaded compound bitwise AND operator for CastlingRights.
+ *
+ * @param lhs The left-hand side CastlingRights.
+ * @param rhs The right-hand side CastlingRights to combine with lhs.
+ * @return The result of the AND operation between lhs and rhs.
+ */
+inline CastlingRights& operator&=(CastlingRights& lhs, const CastlingRights rhs)
+{
+    lhs = static_cast<CastlingRights>(std::to_underlying(lhs) & std::to_underlying(rhs));
+    return lhs;
+}
+
+/**
  * @brief Overloaded bitwise AND operator for CastlingRights.
  *
  * @param lhs The left-hand side CastlingRights.
@@ -49,6 +62,17 @@ inline CastlingRights& operator|=(CastlingRights& lhs, const CastlingRights rhs)
 inline uint operator&(const CastlingRights lhs, const CastlingRights rhs)
 {
     return (std::to_underlying(lhs) & std::to_underlying(rhs));
+}
+
+/**
+ * @brief Overloaded bitwise NOT operator for CastlingRights.
+ *
+ * @param castling_rights The CastlingRights to negate.
+ * @return The negated CastlingRights as an unsigned integer.
+ */
+inline CastlingRights operator~(const CastlingRights castling_rights)
+{
+    return static_cast<CastlingRights>(~std::to_underlying(castling_rights));
 }
 
 /**
@@ -68,6 +92,14 @@ public:
     void printBoard() const;
 
     /**
+     * @brief Copy assignment operator.
+     *
+     * @param other The board to copy from.
+     * @return This board after copying.
+     */
+    Board& operator=(const Board& other) = default;
+
+    /**
      * @brief Parse a FEN string to set up the board state.
      *
      * @param fenString FEN string representing the board state.
@@ -78,7 +110,7 @@ public:
      * @brief Check if a square is attacked by a given side.
      *
      * @param square The square to check for attacks.
-     * @param side The side to check for attacks.
+     * @param side The side of the attacker.
      * @return True if the square is attacked by the given side, false otherwise.
      */
     [[nodiscard]] bool isSquareAttacked(Square square, Side side) const;
@@ -96,6 +128,21 @@ public:
      * This function will populate the internal move list with all legal moves.
      */
     void generateMoves();
+
+    /**
+     * @brief Make a move.
+     *
+     * @param move The move to make.
+     * @return True if the move was valid, false otherwise.
+     */
+    [[nodiscard]] bool makeMove(const Move& move);
+
+    /**
+     * @brief Get the list of generated moves.
+     *
+     * @return A vector containing all generated moves.
+     */
+    [[nodiscard]] const std::vector<Move>& getMoves() const;
 
 private:
     /**

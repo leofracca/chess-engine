@@ -35,6 +35,62 @@ public:
     Move(Square source, Square target, PieceWithColor piece, PieceWithColor promotedPiece = PieceWithColor::InvalidPiece,
          bool isCapture = false, bool isPawnDoublePush = false, bool isEnPassant = false, bool isCastling = false);
 
+    /**
+     * @brief Get the source square of the move.
+     *
+     * @return The source square.
+     */
+    [[nodiscard]] Square getSource() const;
+
+    /**
+     * @brief Get the target square of the move.
+     *
+     * @return The target square.
+     */
+    [[nodiscard]] Square getTarget() const;
+
+    /**
+     * @brief Get the piece being moved.
+     *
+     * @return The piece being moved.
+     */
+    [[nodiscard]] PieceWithColor getPiece() const;
+
+    /**
+     * @brief Get the piece promoted to, if applicable.
+     *
+     * @return The promoted piece, or InvalidPiece if no promotion occurred.
+     */
+    [[nodiscard]] PieceWithColor getPromotedPiece() const;
+
+    /**
+     * @brief Check if the move is a capture.
+     *
+     * @return True if the move is a capture, false otherwise.
+     */
+    [[nodiscard]] bool isCapture() const;
+
+    /**
+     * @brief Check if the move is a pawn double push.
+     *
+     * @return True if the move is a pawn double push, false otherwise.
+     */
+    [[nodiscard]] bool isPawnDoublePush() const;
+
+    /**
+     * @brief Check if the move is an en passant capture.
+     *
+     * @return True if the move is an en passant capture, false otherwise.
+     */
+    [[nodiscard]] bool isEnPassant() const;
+
+    /**
+     * @brief Check if the move is a castling move.
+     *
+     * @return True if the move is a castling move, false otherwise.
+     */
+    [[nodiscard]] bool isCastling() const;
+
 private:
     Square m_source;  //< Source square of the move
     Square m_target;  //< Target square of the move

@@ -15,4 +15,44 @@ Move::Move(const Square source, const Square target, const PieceWithColor piece,
       m_isCastling(isCastling)
 {}
 
+Square Move::getSource() const
+{
+    return m_source;
+}
+
+Square Move::getTarget() const
+{
+    return m_target;
+}
+
+PieceWithColor Move::getPiece() const
+{
+    return m_piece;
+}
+
+PieceWithColor Move::getPromotedPiece() const
+{
+    return m_promotedPiece;
+}
+
+bool Move::isCapture() const
+{
+    return m_isCapture;
+}
+
+bool Move::isPawnDoublePush() const
+{
+    return m_isPawnDoublePush;
+}
+
+bool Move::isEnPassant() const
+{
+    return m_isEnPassant;
+}
+
+bool Move::isCastling() const
+{
+    return m_isCastling;
+}
+
 } // namespace chess_engine

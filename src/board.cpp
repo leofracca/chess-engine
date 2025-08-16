@@ -162,39 +162,42 @@ void Board::parseFENString(const std::string& fenString)
 
 bool Board::isSquareAttacked(const Square square, const Side side) const
 {
-    PieceWithColor piece = PieceWithColor::InvalidPiece;
+    using enum PieceWithColor;
+    using enum Side;
+
+    PieceWithColor piece;
     constexpr Bitboard empty;
 
-    if (side == Side::White)
+    if (side == White)
     {
-        piece = PieceWithColor::WhitePawn;
+        piece = WhitePawn;
         if ((pregenerated_moves::blackPawnsAttacks[std::to_underlying(square)] & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
             return true;
     }
     else
     {
-        piece = PieceWithColor::BlackPawn;
+        piece = BlackPawn;
         if ((pregenerated_moves::whitePawnsAttacks[std::to_underlying(square)] & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
             return true;
     }
 
-    piece = side == Side::White ? PieceWithColor::WhiteKnight : PieceWithColor::BlackKnight;
+    piece = side == White ? WhiteKnight : BlackKnight;
     if ((pregenerated_moves::knightAttacks[std::to_underlying(square)] & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
         return true;
 
-    piece = side == Side::White ? PieceWithColor::WhiteBishop : PieceWithColor::BlackBishop;
+    piece = side == White ? WhiteBishop : BlackBishop;
     if ((pregenerated_moves::getBishopAttacks(square, m_occupancies[std::to_underlying(Side::WhiteAndBlack)]) & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
         return true;
 
-    piece = side == Side::White ? PieceWithColor::WhiteRook : PieceWithColor::BlackRook;
+    piece = side == White ? WhiteRook : BlackRook;
     if ((pregenerated_moves::getRookAttacks(square, m_occupancies[std::to_underlying(Side::WhiteAndBlack)]) & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
         return true;
 
-    piece = side == Side::White ? PieceWithColor::WhiteQueen : PieceWithColor::BlackQueen;
+    piece = side == White ? WhiteQueen : BlackQueen;
     if ((pregenerated_moves::getQueenAttacks(square, m_occupancies[std::to_underlying(Side::WhiteAndBlack)]) & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
         return true;
 
-    piece = side == Side::White ? PieceWithColor::WhiteKing : PieceWithColor::BlackKing;
+    piece = side == White ? WhiteKing : BlackKing;
     if ((pregenerated_moves::kingAttacks[std::to_underlying(square)] & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
         return true;
 
@@ -207,7 +210,7 @@ void Board::printAttackedSquares(const Side side) const
     {
         for (int file = 0; file < board_dimensions::N_FILES; file++)
         {
-            const Square square = static_cast<Square>(rank * board_dimensions::N_FILES + file);
+            const auto square = static_cast<Square>(rank * board_dimensions::N_FILES + file);
             std::print("{}", isSquareAttacked(square, side) ? 1 : 0);
         }
         std::println();
@@ -216,10 +219,26 @@ void Board::printAttackedSquares(const Side side) const
 
 void Board::generateMoves()
 {
-    for (const PieceWithColor piece: PieceWithColor())
-    {
-        using enum PieceWithColor;
+    using enum PieceWithColor;
+    using enum Side;
 
+    PieceWithColor pawn, king;
+
+    // Determine the side to move and set the pawn and king pieces accordingly
+    // This allows us to generate moves for the correct side's pieces
+    if (m_sideToMove == White)
+    {
+        pawn = WhitePawn;
+        king = WhiteKing;
+    }
+    else
+    {
+        pawn = BlackPawn;
+        king = BlackKing;
+    }
+
+    for (PieceWithColor piece = pawn; piece <= king; ++piece)
+    {
         // Generate pawn moves separately
         if (piece == WhitePawn || piece == BlackPawn)
         {
@@ -235,6 +254,144 @@ void Board::generateMoves()
             generateKingCastlingMoves(piece);
         }
     }
+}
+
+bool Board::makeMove(const Move& move)
+{
+    using enum PieceWithColor;
+    using enum Side;
+
+    // Save the current board state before making the move
+    Board boardBeforeMove = *this;
+
+    const Square source = move.getSource();
+    const Square target = move.getTarget();
+    const PieceWithColor piece = move.getPiece();
+    const PieceWithColor promotedPiece = move.getPromotedPiece();
+    const bool isCapture = move.isCapture();
+    const bool isPawnDoublePush = move.isPawnDoublePush();
+    const bool isEnPassant = move.isEnPassant();
+    const bool isCastling = move.isCastling();
+
+    // Move the piece
+    m_bitboardsPieces[std::to_underlying(piece)].clearBit(source);
+    m_bitboardsPieces[std::to_underlying(piece)].setBit(target);
+
+    if (isCapture)
+    {
+        // Loop over the pieces of the opponent to find the captured piece
+        const PieceWithColor pawn = m_sideToMove == White ? BlackPawn : WhitePawn;
+        const PieceWithColor king = m_sideToMove == White ? BlackKing : WhiteKing;
+
+        for (PieceWithColor capturedPiece = pawn; capturedPiece <= king; ++capturedPiece)
+        {
+            // Remove the captured piece from the bitboard
+            if (m_bitboardsPieces[std::to_underlying(capturedPiece)].getBit(target) == 1)
+            {
+                m_bitboardsPieces[std::to_underlying(capturedPiece)].clearBit(target);
+                break;
+            }
+        }
+    }
+
+    if (promotedPiece != InvalidPiece)
+    {
+        // Set the promoted piece and remove the pawn from the bitboard
+        const PieceWithColor pawn = m_sideToMove == White ? WhitePawn : BlackPawn;
+        m_bitboardsPieces[std::to_underlying(pawn)].clearBit(target);
+        m_bitboardsPieces[std::to_underlying(promotedPiece)].setBit(target);
+    }
+
+    if (isEnPassant)
+    {
+        // Remove the captured pawn from the bitboard
+        const PieceWithColor pawn = m_sideToMove == White ? BlackPawn : WhitePawn;
+        const Square capturedPawnSquare = m_sideToMove == White ? target + 8 : target - 8;
+        m_bitboardsPieces[std::to_underlying(pawn)].clearBit(capturedPawnSquare);
+    }
+    // Reset en passant square after the move
+    m_enPassantSquare = Square::INVALID;
+
+    if (isPawnDoublePush)
+    {
+        // Set the en passant square to the square behind the pawn
+        m_enPassantSquare = m_sideToMove == White ? target + 8 : target - 8;
+    }
+
+    if (isCastling)
+    {
+        const PieceWithColor rook = m_sideToMove == White ? WhiteRook : BlackRook;
+        switch (target)
+        {
+            using enum Square;
+            case g1:
+                m_bitboardsPieces[std::to_underlying(rook)].setBit(f1);
+                m_bitboardsPieces[std::to_underlying(rook)].clearBit(h1);
+                break;
+            case c1:
+                m_bitboardsPieces[std::to_underlying(rook)].setBit(d1);
+                m_bitboardsPieces[std::to_underlying(rook)].clearBit(a1);
+                break;
+            case g8:
+                m_bitboardsPieces[std::to_underlying(rook)].setBit(f8);
+                m_bitboardsPieces[std::to_underlying(rook)].clearBit(h8);
+                break;
+            case c8:
+                m_bitboardsPieces[std::to_underlying(rook)].setBit(d8);
+                m_bitboardsPieces[std::to_underlying(rook)].clearBit(a8);
+                break;
+            default:
+                return false; // Invalid castling move
+        }
+    }
+
+    // Update castling rights
+    if (piece == WhiteKing)
+    {
+        m_castlingRights &= ~CastlingRights::WhiteShort;
+        m_castlingRights &= ~CastlingRights::WhiteLong;
+    }
+    else if (piece == BlackKing)
+    {
+        m_castlingRights &= ~CastlingRights::BlackShort;
+        m_castlingRights &= ~CastlingRights::BlackLong;
+    }
+    if (source == Square::a1 || target == Square::a1) m_castlingRights &= ~CastlingRights::WhiteLong;
+    else if (source == Square::h1 || target == Square::h1) m_castlingRights &= ~CastlingRights::WhiteShort;
+    else if (source == Square::a8 || target == Square::a8) m_castlingRights &= ~CastlingRights::BlackLong;
+    else if (source == Square::h8 || target == Square::h8) m_castlingRights &= ~CastlingRights::BlackShort;
+
+    // Update occupancies
+    std::fill(m_occupancies.begin(), m_occupancies.end(), 0);
+    for (PieceWithColor p = WhitePawn; p <= WhiteKing; ++p)
+    {
+        m_occupancies[std::to_underlying(White)] |= m_bitboardsPieces[std::to_underlying(p)];
+    }
+    for (PieceWithColor p = BlackPawn; p <= BlackKing; ++p)
+    {
+        m_occupancies[std::to_underlying(Black)] |= m_bitboardsPieces[std::to_underlying(p)];
+    }
+    m_occupancies[std::to_underlying(WhiteAndBlack)] = m_occupancies[std::to_underlying(White)] | m_occupancies[std::to_underlying(Black)];
+
+    // Update the side to move
+    m_sideToMove = m_sideToMove == White ? Black : White;
+
+    // Check if king is in check after the move
+    const PieceWithColor king = m_sideToMove == White ? BlackKing : WhiteKing;
+    const Square kingSquare = m_bitboardsPieces[std::to_underlying(king)].getSquareOfLeastSignificantBitIndex();
+    if (isSquareAttacked(kingSquare, m_sideToMove))
+    {
+        // If the king is in check, revert the move
+        *this = boardBeforeMove;
+        return false; // Invalid move, king is in check
+    }
+
+    return true; // Move was valid
+}
+
+const std::vector<Move>& Board::getMoves() const
+{
+    return m_moves;
 }
 
 void Board::generatePawnMoves(const PieceWithColor piece)
@@ -318,8 +475,8 @@ void Board::generatePawnMoves(const PieceWithColor piece)
             if (side == m_sideToMove)
             {
                 Bitboard enPassantBitboard = side == White
-                    ? pregenerated_moves::whitePawnsAttacks[std::to_underlying(source)] & Bitboard(m_enPassantSquare)
-                    : pregenerated_moves::blackPawnsAttacks[std::to_underlying(source)] & Bitboard(m_enPassantSquare);
+                                                     ? pregenerated_moves::whitePawnsAttacks[std::to_underlying(source)] & Bitboard(m_enPassantSquare)
+                                                     : pregenerated_moves::blackPawnsAttacks[std::to_underlying(source)] & Bitboard(m_enPassantSquare);
 
                 if (enPassantBitboard != emptyBitboard)
                 {
@@ -408,13 +565,16 @@ void Board::generatePieceMoves(const PieceWithColor piece)
     using enum Side;
 
     const Side side = piece >= WhitePawn && piece <= WhiteKing ? White : Black;
+    const Side opponentSide = side == White ? Black : White;
     constexpr Bitboard emptyBitboard;
     Bitboard bitboardPiece = m_bitboardsPieces[std::to_underlying(piece)];
 
     // Get the occupancy of the piece's side
     const Bitboard occupancy = m_occupancies[std::to_underlying(side)];
     // Get the occupancy of the opponent's side
-    const Bitboard opponentOccupancy = m_occupancies[std::to_underlying(side)];
+    const Bitboard opponentOccupancy = m_occupancies[std::to_underlying(opponentSide)];
+    // Combine both occupancies to get the full board occupancy
+    const Bitboard allOccupancy = occupancy | opponentOccupancy;
 
     // Save the piece's attacks function pointer
     Bitboard (*getAttacks)(Square, Bitboard);
@@ -449,7 +609,7 @@ void Board::generatePieceMoves(const PieceWithColor piece)
     {
         const Square source = bitboardPiece.getSquareOfLeastSignificantBitIndex();
         // Get all possible attacks from the source square (all possible moves except the squares occupied by other pieces of the same side)
-        Bitboard attacks = getAttacks(source, occupancy) & ~occupancy.getBitboard();
+        Bitboard attacks = getAttacks(source, allOccupancy) & ~occupancy.getBitboard();
 
         while (attacks != emptyBitboard)
         {
