@@ -44,6 +44,14 @@ target_include_directories(chess_engine
         PUBLIC ${PROJECT_SOURCE_DIR}/include
 )
 
+target_compile_options(chess_engine
+        PRIVATE ${COMPILER_FLAGS}
+        PRIVATE $<$<BOOL:${COVERAGE}>:--coverage>
+)
+target_link_options(chess_engine
+        PRIVATE ${LINKER_FLAGS}
+)
+
 # Install
 file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 install(
