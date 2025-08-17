@@ -153,7 +153,6 @@ private:
      */
     [[nodiscard]] static char pieceToFENCharacter(const PieceWithColor piece)
     {
-        using enum PieceWithColor;
         switch (piece)
         {
             // clang-format off
@@ -179,19 +178,19 @@ private:
         switch (fenChar)
         {
             // clang-format off
-            case 'P': return PieceWithColor::WhitePawn;
-            case 'N': return PieceWithColor::WhiteKnight;
-            case 'B': return PieceWithColor::WhiteBishop;
-            case 'R': return PieceWithColor::WhiteRook;
-            case 'Q': return PieceWithColor::WhiteQueen;
-            case 'K': return PieceWithColor::WhiteKing;
-            case 'p': return PieceWithColor::BlackPawn;
-            case 'n': return PieceWithColor::BlackKnight;
-            case 'b': return PieceWithColor::BlackBishop;
-            case 'r': return PieceWithColor::BlackRook;
-            case 'q': return PieceWithColor::BlackQueen;
-            case 'k': return PieceWithColor::BlackKing;
-            default: return  PieceWithColor::InvalidPiece;
+            case 'P': return WhitePawn;
+            case 'N': return WhiteKnight;
+            case 'B': return WhiteBishop;
+            case 'R': return WhiteRook;
+            case 'Q': return WhiteQueen;
+            case 'K': return WhiteKing;
+            case 'p': return BlackPawn;
+            case 'n': return BlackKnight;
+            case 'b': return BlackBishop;
+            case 'r': return BlackRook;
+            case 'q': return BlackQueen;
+            case 'k': return BlackKing;
+            default: return  InvalidPiece;
             // clang-format on
         }
     }

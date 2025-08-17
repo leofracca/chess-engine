@@ -53,6 +53,10 @@ enum class PieceWithColor : int
     InvalidPiece
 };
 
+using enum Side;
+using enum Piece;
+using enum PieceWithColor;
+
 /**
  * @brief Overloaded begin function for PieceWithColor enumeration.
  *
@@ -62,7 +66,7 @@ enum class PieceWithColor : int
  */
 inline PieceWithColor begin(PieceWithColor)
 {
-    return PieceWithColor::WhitePawn;
+    return WhitePawn;
 }
 
 /**
@@ -74,7 +78,7 @@ inline PieceWithColor begin(PieceWithColor)
  */
 inline PieceWithColor end(PieceWithColor)
 {
-    return PieceWithColor::InvalidPiece;
+    return InvalidPiece;
 }
 
 /**

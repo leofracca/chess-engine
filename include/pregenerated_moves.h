@@ -37,7 +37,7 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
     const Bitboard bitboard(square);
     Bitboard attacks;
 
-    if (side == Side::White)
+    if (side == White)
     {
         attacks |= (bitboard >> 7) & NOT_A_FILE; // Attack left diagonal
         attacks |= (bitboard >> 9) & NOT_H_FILE; // Attack right diagonal
@@ -157,8 +157,8 @@ constexpr void initLeaperAttacks()
 {
     for (int i = 0; i < board_dimensions::N_SQUARES; ++i)
     {
-        whitePawnsAttacks[i] = generatePawnAttacks(Side::White, static_cast<Square>(i));
-        blackPawnsAttacks[i] = generatePawnAttacks(Side::Black, static_cast<Square>(i));
+        whitePawnsAttacks[i] = generatePawnAttacks(White, static_cast<Square>(i));
+        blackPawnsAttacks[i] = generatePawnAttacks(Black, static_cast<Square>(i));
         knightAttacks[i] = generateKnightAttacks(static_cast<Square>(i));
         kingAttacks[i] = generateKingAttacks(static_cast<Square>(i));
     }

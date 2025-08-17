@@ -6,7 +6,7 @@
 namespace chess_engine
 {
 Board::Board()
-    : m_sideToMove(Side::White),
+    : m_sideToMove(White),
       m_castlingRights(CastlingRights::None),
       m_enPassantSquare(Square::INVALID),
       m_halfMoveClock(0),
@@ -46,7 +46,7 @@ void Board::printBoard() const
     }
     std::println("   a b c d e f g h\n"); // Print file letters at the bottom of the board
 
-    std::println("Side to move: {}", m_sideToMove == Side::White ? "White" : "Black");
+    std::println("Side to move: {}", m_sideToMove == White ? "White" : "Black");
     std::println("Castling rights: {}", static_cast<int>(m_castlingRights));
     std::println("En passant square: {}", m_enPassantSquare == Square::INVALID ? "None" : std::to_string(std::to_underlying(m_enPassantSquare)));
     std::println("Half-move clock: {}", m_halfMoveClock);
@@ -62,7 +62,7 @@ void Board::parseFENString(const std::string& fenString)
     // Reset the board state
     std::fill(m_bitboardsPieces.begin(), m_bitboardsPieces.end(), 0);
     std::fill(m_occupancies.begin(), m_occupancies.end(), 0);
-    m_sideToMove = Side::White;
+    m_sideToMove = White;
     m_castlingRights = CastlingRights::None;
     m_enPassantSquare = Square::INVALID;
     m_halfMoveClock = 0;
@@ -99,7 +99,7 @@ void Board::parseFENString(const std::string& fenString)
     index++; // Skip the space after the piece placement
 
     // Parse FEN: Side to move
-    m_sideToMove = (fenString[index++] == 'w') ? Side::White : Side::Black;
+    m_sideToMove = (fenString[index++] == 'w') ? White : Black;
 
     index++; // Skip the space after the side to move
 
@@ -149,22 +149,19 @@ void Board::parseFENString(const std::string& fenString)
     }
 
     // Update occupancies
-    for (PieceWithColor piece = PieceWithColor::WhitePawn; piece <= PieceWithColor::WhiteKing; piece++)
+    for (PieceWithColor piece = WhitePawn; piece <= WhiteKing; ++piece)
     {
-        m_occupancies[std::to_underlying(Side::White)] |= m_bitboardsPieces[std::to_underlying(piece)];
+        m_occupancies[std::to_underlying(White)] |= m_bitboardsPieces[std::to_underlying(piece)];
     }
-    for (PieceWithColor piece = PieceWithColor::BlackPawn; piece <= PieceWithColor::BlackKing; piece++)
+    for (PieceWithColor piece = BlackPawn; piece <= BlackKing; ++piece)
     {
-        m_occupancies[std::to_underlying(Side::Black)] |= m_bitboardsPieces[std::to_underlying(piece)];
+        m_occupancies[std::to_underlying(Black)] |= m_bitboardsPieces[std::to_underlying(piece)];
     }
-    m_occupancies[std::to_underlying(Side::WhiteAndBlack)] = m_occupancies[std::to_underlying(Side::White)] | m_occupancies[std::to_underlying(Side::Black)];
+    m_occupancies[std::to_underlying(WhiteAndBlack)] = m_occupancies[std::to_underlying(White)] | m_occupancies[std::to_underlying(Black)];
 }
 
 bool Board::isSquareAttacked(const Square square, const Side side) const
 {
-    using enum PieceWithColor;
-    using enum Side;
-
     PieceWithColor piece;
     constexpr Bitboard empty;
 
@@ -186,15 +183,15 @@ bool Board::isSquareAttacked(const Square square, const Side side) const
         return true;
 
     piece = side == White ? WhiteBishop : BlackBishop;
-    if ((pregenerated_moves::getBishopAttacks(square, m_occupancies[std::to_underlying(Side::WhiteAndBlack)]) & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
+    if ((pregenerated_moves::getBishopAttacks(square, m_occupancies[std::to_underlying(WhiteAndBlack)]) & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
         return true;
 
     piece = side == White ? WhiteRook : BlackRook;
-    if ((pregenerated_moves::getRookAttacks(square, m_occupancies[std::to_underlying(Side::WhiteAndBlack)]) & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
+    if ((pregenerated_moves::getRookAttacks(square, m_occupancies[std::to_underlying(WhiteAndBlack)]) & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
         return true;
 
     piece = side == White ? WhiteQueen : BlackQueen;
-    if ((pregenerated_moves::getQueenAttacks(square, m_occupancies[std::to_underlying(Side::WhiteAndBlack)]) & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
+    if ((pregenerated_moves::getQueenAttacks(square, m_occupancies[std::to_underlying(WhiteAndBlack)]) & m_bitboardsPieces[std::to_underlying(piece)]) != empty)
         return true;
 
     piece = side == White ? WhiteKing : BlackKing;
@@ -219,9 +216,6 @@ void Board::printAttackedSquares(const Side side) const
 
 void Board::generateMoves()
 {
-    using enum PieceWithColor;
-    using enum Side;
-
     PieceWithColor pawn, king;
 
     // Determine the side to move and set the pawn and king pieces accordingly
@@ -258,9 +252,6 @@ void Board::generateMoves()
 
 bool Board::makeMove(const Move& move)
 {
-    using enum PieceWithColor;
-    using enum Side;
-
     // Save the current board state before making the move
     Board boardBeforeMove = *this;
 
@@ -396,9 +387,6 @@ const std::vector<Move>& Board::getMoves() const
 
 void Board::generatePawnMoves(const PieceWithColor piece)
 {
-    using enum PieceWithColor;
-    using enum Side;
-
     const Side side = piece == WhitePawn ? White : Black;
     constexpr Bitboard emptyBitboard;
     Bitboard bitboardPiece = m_bitboardsPieces[std::to_underlying(piece)];
@@ -495,16 +483,15 @@ void Board::generateKingCastlingMoves(PieceWithColor piece)
 {
     switch (piece)
     {
-        using enum PieceWithColor;
         case WhiteKing:
             if (m_castlingRights & CastlingRights::WhiteShort)
             {
                 // Check if the squares between the king and rook are empty and not attacked, and the king is not in check
-                if (m_occupancies[std::to_underlying(Side::WhiteAndBlack)].getBit(Square::f1) == 0 &&
-                    m_occupancies[std::to_underlying(Side::WhiteAndBlack)].getBit(Square::g1) == 0 &&
-                    !isSquareAttacked(Square::e1, Side::Black) &&
-                    !isSquareAttacked(Square::f1, Side::Black) &&
-                    !isSquareAttacked(Square::g1, Side::Black))
+                if (m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::f1) == 0 &&
+                    m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::g1) == 0 &&
+                    !isSquareAttacked(Square::e1, Black) &&
+                    !isSquareAttacked(Square::f1, Black) &&
+                    !isSquareAttacked(Square::g1, Black))
                 {
                     m_moves.emplace_back(Square::e1, Square::g1, piece, InvalidPiece, false, false, false, true);
                 }
@@ -512,13 +499,13 @@ void Board::generateKingCastlingMoves(PieceWithColor piece)
             if (m_castlingRights & CastlingRights::WhiteLong)
             {
                 // Check if the squares between the king and rook are empty and not attacked, and the king is not in check
-                if (m_occupancies[std::to_underlying(Side::WhiteAndBlack)].getBit(Square::b1) == 0 &&
-                    m_occupancies[std::to_underlying(Side::WhiteAndBlack)].getBit(Square::c1) == 0 &&
-                    m_occupancies[std::to_underlying(Side::WhiteAndBlack)].getBit(Square::d1) == 0 &&
-                    !isSquareAttacked(Square::b1, Side::Black) &&
-                    !isSquareAttacked(Square::c1, Side::Black) &&
-                    !isSquareAttacked(Square::d1, Side::Black) &&
-                    !isSquareAttacked(Square::e1, Side::Black))
+                if (m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::b1) == 0 &&
+                    m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::c1) == 0 &&
+                    m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::d1) == 0 &&
+                    !isSquareAttacked(Square::b1, Black) &&
+                    !isSquareAttacked(Square::c1, Black) &&
+                    !isSquareAttacked(Square::d1, Black) &&
+                    !isSquareAttacked(Square::e1, Black))
                 {
                     m_moves.emplace_back(Square::e1, Square::c1, piece, InvalidPiece, false, false, false, true);
                 }
@@ -528,11 +515,11 @@ void Board::generateKingCastlingMoves(PieceWithColor piece)
             if (m_castlingRights & CastlingRights::BlackShort)
             {
                 // Check if the squares between the king and rook are empty and not attacked, and the king is not in check
-                if (m_occupancies[std::to_underlying(Side::WhiteAndBlack)].getBit(Square::f8) == 0 &&
-                    m_occupancies[std::to_underlying(Side::WhiteAndBlack)].getBit(Square::g8) == 0 &&
-                    !isSquareAttacked(Square::e8, Side::White) &&
-                    !isSquareAttacked(Square::f8, Side::White) &&
-                    !isSquareAttacked(Square::g8, Side::White))
+                if (m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::f8) == 0 &&
+                    m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::g8) == 0 &&
+                    !isSquareAttacked(Square::e8, White) &&
+                    !isSquareAttacked(Square::f8, White) &&
+                    !isSquareAttacked(Square::g8, White))
                 {
                     m_moves.emplace_back(Square::e8, Square::g8, piece, InvalidPiece, false, false, false, true);
                 }
@@ -541,13 +528,13 @@ void Board::generateKingCastlingMoves(PieceWithColor piece)
             if (m_castlingRights & CastlingRights::BlackLong)
             {
                 // Check if the squares between the king and rook are empty and not attacked, and the king is not in check
-                if (m_occupancies[std::to_underlying(Side::WhiteAndBlack)].getBit(Square::b8) == 0 &&
-                    m_occupancies[std::to_underlying(Side::WhiteAndBlack)].getBit(Square::c8) == 0 &&
-                    m_occupancies[std::to_underlying(Side::WhiteAndBlack)].getBit(Square::d8) == 0 &&
-                    !isSquareAttacked(Square::b8, Side::White) &&
-                    !isSquareAttacked(Square::c8, Side::White) &&
-                    !isSquareAttacked(Square::d8, Side::White) &&
-                    !isSquareAttacked(Square::e8, Side::White))
+                if (m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::b8) == 0 &&
+                    m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::c8) == 0 &&
+                    m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::d8) == 0 &&
+                    !isSquareAttacked(Square::b8, White) &&
+                    !isSquareAttacked(Square::c8, White) &&
+                    !isSquareAttacked(Square::d8, White) &&
+                    !isSquareAttacked(Square::e8, White))
                 {
                     m_moves.emplace_back(Square::e8, Square::c8, piece, InvalidPiece, false, false, false, true);
                 }
@@ -561,9 +548,6 @@ void Board::generateKingCastlingMoves(PieceWithColor piece)
 
 void Board::generatePieceMoves(const PieceWithColor piece)
 {
-    using enum PieceWithColor;
-    using enum Side;
-
     const Side side = piece >= WhitePawn && piece <= WhiteKing ? White : Black;
     const Side opponentSide = side == White ? Black : White;
     constexpr Bitboard emptyBitboard;

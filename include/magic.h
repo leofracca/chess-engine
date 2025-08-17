@@ -80,13 +80,13 @@ public:
         //               "Magic numbers can only be generated for Rooks and Bishops.");
 
         // Determine the number of relevant occupancy bits for the given square and piece
-        const int relevantBits = piece == Piece::Bishop
+        const int relevantBits = piece == Bishop
             ? slider_utils::BISHOP_RELEVANT_BITS[static_cast<int>(square)]
             : slider_utils::ROOK_RELEVANT_BITS[static_cast<int>(square)];
         const int totalOccupancies = 1 << relevantBits;
 
         // Generate the attack mask for the square and piece
-        const Bitboard attackMask = piece == Piece::Bishop
+        const Bitboard attackMask = piece == Bishop
             ? slider_utils::generateBishopAttacks(square)
             : slider_utils::generateRookAttacks(square);
 
@@ -99,7 +99,7 @@ public:
         for (int index = 0; index < totalOccupancies; index++)
         {
             occupancies[index] = slider_utils::generateOccupancyMask(index, attackMask);
-            attacks[index] = piece == Piece::Bishop
+            attacks[index] = piece == Bishop
                 ? slider_utils::generateBishopAttacksOnTheFly(square, occupancies[index])
                 : slider_utils::generateRookAttacksOnTheFly(square, occupancies[index]);
         }
@@ -162,8 +162,8 @@ public:
     {
         for (Square square = Square::a8; square <= Square::h1; square++)
         {
-            m_bishopMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Piece::Bishop);
-            m_rookMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Piece::Rook);
+            m_bishopMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Bishop);
+            m_rookMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Rook);
         }
     }
 

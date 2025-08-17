@@ -32,7 +32,7 @@ public:
      * @param isEnPassant Indicates if the move is an en passant capture (default is false).
      * @param isCastling Indicates if the move is a castling move (default is false).
      */
-    Move(Square source, Square target, PieceWithColor piece, PieceWithColor promotedPiece = PieceWithColor::InvalidPiece,
+    Move(Square source, Square target, PieceWithColor piece, PieceWithColor promotedPiece = InvalidPiece,
          bool isCapture = false, bool isPawnDoublePush = false, bool isEnPassant = false, bool isCastling = false);
 
     /**
