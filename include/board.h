@@ -89,15 +89,7 @@ public:
     /**
      * @brief Print the current state of the board.
      */
-    void printBoard() const;
-
-    /**
-     * @brief Copy assignment operator.
-     *
-     * @param other The board to copy from.
-     * @return This board after copying.
-     */
-    Board& operator=(const Board& other) = default;
+    void print() const;
 
     /**
      * @brief Parse a FEN string to set up the board state.
@@ -105,23 +97,6 @@ public:
      * @param fenString FEN string representing the board state.
      */
     void parseFENString(const std::string& fenString);
-
-    /**
-     * @brief Check if a square is attacked by a given side.
-     *
-     * @param square The square to check for attacks.
-     * @param side The side of the attacker.
-     * @return True if the square is attacked by the given side, false otherwise.
-     */
-    [[nodiscard]] bool isSquareAttacked(Square square, Side side) const;
-
-    /**
-     * @brief Print all squares attacked by a given side.
-     * Used for debugging purposes.
-     *
-     * @param side The side for which to print attacked squares.
-     */
-    void printAttackedSquares(Side side) const;
 
     /**
      * @brief Generate all possible moves for the current board state.
@@ -151,49 +126,32 @@ private:
      * @param piece The piece to convert.
      * @return The FEN character representing the piece.
      */
-    [[nodiscard]] static char pieceToFENCharacter(const PieceWithColor piece)
-    {
-        switch (piece)
-        {
-            // clang-format off
-            case WhitePawn:      return 'P';
-            case WhiteKnight:    return 'N';
-            case WhiteBishop:    return 'B';
-            case WhiteRook:      return 'R';
-            case WhiteQueen:     return 'Q';
-            case WhiteKing:      return 'K';
-            case BlackPawn:      return 'p';
-            case BlackKnight:    return 'n';
-            case BlackBishop:    return 'b';
-            case BlackRook:      return 'r';
-            case BlackQueen:     return 'q';
-            case BlackKing:      return 'k';
-            default:             return '?'; // Invalid piece
-            // clang-format on
-        }
-    }
+    [[nodiscard]] static char pieceToFENCharacter(PieceWithColor piece);
 
-    [[nodiscard]] static PieceWithColor FENCharacterToPieceWithColor(const char fenChar)
-    {
-        switch (fenChar)
-        {
-            // clang-format off
-            case 'P': return WhitePawn;
-            case 'N': return WhiteKnight;
-            case 'B': return WhiteBishop;
-            case 'R': return WhiteRook;
-            case 'Q': return WhiteQueen;
-            case 'K': return WhiteKing;
-            case 'p': return BlackPawn;
-            case 'n': return BlackKnight;
-            case 'b': return BlackBishop;
-            case 'r': return BlackRook;
-            case 'q': return BlackQueen;
-            case 'k': return BlackKing;
-            default: return  InvalidPiece;
-            // clang-format on
-        }
-    }
+    /**
+     * @brief Convert a FEN character to its corresponding PieceWithColor.
+     *
+     * @param fenChar The FEN character to convert.
+     * @return The PieceWithColor corresponding to the FEN character.
+     */
+    [[nodiscard]] static PieceWithColor FENCharacterToPieceWithColor(char fenChar);
+
+    /**
+     * @brief Check if a square is attacked by a given side.
+     *
+     * @param square The square to check for attacks.
+     * @param side The side of the attacker.
+     * @return True if the square is attacked by the given side, false otherwise.
+     */
+    [[nodiscard]] bool isSquareAttacked(Square square, Side side) const;
+
+    /**
+     * @brief Print all squares attacked by a given side.
+     * Used for debugging purposes.
+     *
+     * @param side The side for which to print attacked squares.
+     */
+    void printAttackedSquares(Side side) const;
 
     /**
      * @brief Generate moves for pawns of a given side.

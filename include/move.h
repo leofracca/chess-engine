@@ -1,3 +1,11 @@
+/**
+ * @file move.h
+ * @brief Declaration of the Move class representing a move.
+ *
+ * This file contains the declaration of the Move class, which encapsulates the details of a move,
+ * including the source and target squares, the piece being moved, any promotion that occurs, and various
+ * flags indicating the nature of the move (capture, pawn double push, en passant, castling).
+ */
 #pragma once
 
 #include "bitboard.h"

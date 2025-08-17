@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <utility>
 
 namespace chess_engine
 {
@@ -89,7 +90,7 @@ inline PieceWithColor end(PieceWithColor)
  */
 inline PieceWithColor& operator++(PieceWithColor& piece)
 {
-    piece = static_cast<PieceWithColor>(static_cast<int>(piece) + 1);
+    piece = static_cast<PieceWithColor>(std::to_underlying(piece) + 1);
     return piece;
 }
 

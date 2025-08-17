@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstdint>
+#include <utility>
 
 namespace chess_engine
 {
@@ -46,9 +47,9 @@ enum class Square : int
  * @param rhs The right-hand side operand.
  * @return The result of the left shift operation.
  */
-constexpr uint64_t operator<<(const uint64_t lhs, Square rhs)
+constexpr uint64_t operator<<(const uint64_t lhs, const Square rhs)
 {
-    return lhs << static_cast<int>(rhs);
+    return lhs << std::to_underlying(rhs);
 }
 
 /**
@@ -58,9 +59,9 @@ constexpr uint64_t operator<<(const uint64_t lhs, Square rhs)
  * @param rhs The right-hand side operand.
  * @return The result of the right shift operation.
  */
-constexpr uint64_t operator>>(const uint64_t lhs, Square rhs)
+constexpr uint64_t operator>>(const uint64_t lhs, const Square rhs)
 {
-    return lhs >> static_cast<int>(rhs);
+    return lhs >> std::to_underlying(rhs);
 }
 
 /**
@@ -72,7 +73,7 @@ constexpr uint64_t operator>>(const uint64_t lhs, Square rhs)
  */
 constexpr Square operator+(const Square lhs, const int rhs)
 {
-    return static_cast<Square>(static_cast<int>(lhs) + rhs);
+    return static_cast<Square>(std::to_underlying(lhs) + rhs);
 }
 
 /**
@@ -85,7 +86,7 @@ constexpr Square operator+(const Square lhs, const int rhs)
  */
 constexpr Square operator+(const Square lhs, const Square rhs)
 {
-    return static_cast<Square>(static_cast<int>(lhs) + static_cast<int>(rhs));
+    return static_cast<Square>(std::to_underlying(lhs) + std::to_underlying(rhs));
 }
 
 /**
@@ -97,7 +98,7 @@ constexpr Square operator+(const Square lhs, const Square rhs)
  */
 constexpr Square operator-(const Square lhs, const int rhs)
 {
-    return static_cast<Square>(static_cast<int>(lhs) - rhs);
+    return static_cast<Square>(std::to_underlying(lhs) - rhs);
 }
 
 /**
@@ -109,7 +110,7 @@ constexpr Square operator-(const Square lhs, const int rhs)
  */
 constexpr Square operator*(const Square lhs, const int rhs)
 {
-    return static_cast<Square>(static_cast<int>(lhs) * rhs);
+    return static_cast<Square>(std::to_underlying(lhs) * rhs);
 }
 
 /**
@@ -121,7 +122,7 @@ constexpr Square operator*(const Square lhs, const int rhs)
  */
 constexpr Square operator/(const Square lhs, const int rhs)
 {
-    return static_cast<Square>(static_cast<int>(lhs) / rhs);
+    return static_cast<Square>(std::to_underlying(lhs) / rhs);
 }
 
 /**
@@ -133,7 +134,7 @@ constexpr Square operator/(const Square lhs, const int rhs)
  */
 constexpr Square operator%(const Square lhs, const int rhs)
 {
-    return static_cast<Square>(static_cast<int>(lhs) % rhs);
+    return static_cast<Square>(std::to_underlying(lhs) % rhs);
 }
 
 /**
@@ -169,7 +170,7 @@ constexpr Square operator--(Square& lhs, int)
  */
 constexpr bool operator>(const Square lhs, const int rhs)
 {
-    return static_cast<int>(lhs) > rhs;
+    return std::to_underlying(lhs) > rhs;
 }
 
 /**
@@ -181,7 +182,7 @@ constexpr bool operator>(const Square lhs, const int rhs)
  */
 constexpr bool operator>=(const Square lhs, const int rhs)
 {
-    return static_cast<int>(lhs) >= rhs;
+    return std::to_underlying(lhs) >= rhs;
 }
 
 /**
@@ -193,7 +194,7 @@ constexpr bool operator>=(const Square lhs, const int rhs)
  */
 constexpr bool operator<(const Square lhs, const int rhs)
 {
-    return static_cast<int>(lhs) < rhs;
+    return std::to_underlying(lhs) < rhs;
 }
 
 /**
@@ -321,7 +322,7 @@ public:
      */
     constexpr Bitboard operator<<(const int s) const
     {
-        return Bitboard(m_bitboard << s);
+        return {m_bitboard << s};
     }
 
     /**
@@ -332,7 +333,7 @@ public:
      */
     constexpr Bitboard operator>>(const int s) const
     {
-        return Bitboard(m_bitboard >> s);
+        return {m_bitboard >> s};
     }
 
     /**
@@ -343,7 +344,7 @@ public:
      */
     constexpr Bitboard operator&(const Bitboard& other) const
     {
-        return Bitboard(m_bitboard & other.m_bitboard);
+        return {m_bitboard & other.m_bitboard};
     }
 
     /**

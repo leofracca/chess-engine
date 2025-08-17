@@ -1,3 +1,7 @@
+/**
+ * @file pregenerated_moves.h
+ * @brief Contains precomputed moves for pieces to optimize move generation.
+ */
 #pragma once
 
 #include <array>
@@ -8,6 +12,7 @@
 #include "slider_utils.h"
 
 // Note: Not sure if a static class is preferred here, instead of a namespace
+// Note: Can be computed at compile time?
 namespace chess_engine::pregenerated_moves
 {
 inline std::array<Bitboard, 64> whitePawnsAttacks; //< Precomputed pawn attacks for white pawns
@@ -17,8 +22,8 @@ inline std::array<Bitboard, 64> kingAttacks; //< Precomputed king attacks
 inline std::array<std::array<Bitboard, 512>, 64> bishopAttacks; //< Precomputed bishop attacks ([square][occupancy])
 inline std::array<std::array<Bitboard, 4096>, 64> rookAttacks; //< Precomputed rook attacks ([square][occupancy])
 
-inline std::array<Bitboard, 64> bishopAttacksMasks;
-inline std::array<Bitboard, 64> rookAttacksMasks;
+inline std::array<Bitboard, 64> bishopAttacksMasks; //< Precomputed bishop attack masks
+inline std::array<Bitboard, 64> rookAttacksMasks; //< Precomputed rook attack masks
 
 static constexpr Bitboard NOT_A_FILE{18374403900871474942ULL}; //< All squares set to 1 except the 'a' file
 static constexpr Bitboard NOT_H_FILE{9187201950435737471ULL}; //< All squares set to 1 except the 'h' file
