@@ -24,7 +24,7 @@ else ()
             $<$<BOOL:${USAN}>:-fsanitize=undefined -fno-omit-frame-pointer>
     )
 endif()
-# message(STATUS "Compiler flags: ${COMPILER_FLAGS}")
+# message(WARNING "Compiler flags are set to: ${COMPILER_FLAGS}")
 
 set(LINKER_FLAGS
         $<$<BOOL:${USAN}>:-fsanitize=undefined -fno-omit-frame-pointer>
@@ -50,6 +50,20 @@ install(
         FILES ${CMAKE_BINARY_DIR}/chess_engine
         DESTINATION ${PROJECT_SOURCE_DIR}/bin
 )
+
+#################
+# Code Coverage #
+#################
+if (COVERAGE)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/coverage)
+    add_custom_target(coverage
+            COMMAND gcovr --root ${PROJECT_SOURCE_DIR}
+            --html
+            --html-details
+            --output coverage/coverage.html
+            COMMENT "Generating code coverage"
+    )
+endif()
 
 #################
 # Documentation #
