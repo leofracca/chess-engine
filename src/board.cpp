@@ -47,8 +47,12 @@ void Board::print() const
     std::println("   a b c d e f g h\n"); // Print file letters at the bottom of the board
 
     std::println("Side to move: {}", m_sideToMove == White ? "White" : "Black");
-    std::println("Castling rights: {}", static_cast<int>(m_castlingRights));
-    std::println("En passant square: {}", m_enPassantSquare == Square::INVALID ? "None" : std::to_string(std::to_underlying(m_enPassantSquare)));
+    std::println("Castling rights: {}{}{}{}",
+                  (m_castlingRights & CastlingRights::WhiteShort ? "K" : ""),
+                  (m_castlingRights & CastlingRights::WhiteLong ? "Q" : ""),
+                  (m_castlingRights & CastlingRights::BlackShort ? "k" : ""),
+                  (m_castlingRights & CastlingRights::BlackLong ? "q" : ""));
+    std::println("En passant square: {}", m_enPassantSquare == Square::INVALID ? "None" : s_squares[std::to_underlying(m_enPassantSquare)]);
     std::println("Half-move clock: {}", m_halfMoveClock);
     std::println("Full-move number: {}", m_fullMoveNumber);
 
