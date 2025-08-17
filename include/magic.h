@@ -25,6 +25,22 @@ class Magic
 {
 public:
     /**
+     * @brief Initializes the magic numbers for bishops and rooks.
+     *
+     * This function initializes the precomputed magic numbers for bishops and rooks
+     * for all squares.
+     */
+    static void initializeMagicNumbers()
+    {
+        for (Square square = Square::a8; square <= Square::h1; square++)
+        {
+            m_bishopMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Bishop);
+            m_rookMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Rook);
+        }
+    }
+
+private:
+    /**
      * @brief Generates a random 64-bit unsigned integer.
      *
      * This function uses a random number generator to create a 64-bit unsigned integer.
@@ -81,14 +97,14 @@ public:
 
         // Determine the number of relevant occupancy bits for the given square and piece
         const int relevantBits = piece == Bishop
-            ? slider_utils::BISHOP_RELEVANT_BITS[static_cast<int>(square)]
-            : slider_utils::ROOK_RELEVANT_BITS[static_cast<int>(square)];
+                                         ? slider_utils::BISHOP_RELEVANT_BITS[static_cast<int>(square)]
+                                         : slider_utils::ROOK_RELEVANT_BITS[static_cast<int>(square)];
         const int totalOccupancies = 1 << relevantBits;
 
         // Generate the attack mask for the square and piece
         const Bitboard attackMask = piece == Bishop
-            ? slider_utils::generateBishopAttacks(square)
-            : slider_utils::generateRookAttacks(square);
+                                            ? slider_utils::generateBishopAttacks(square)
+                                            : slider_utils::generateRookAttacks(square);
 
         // Allocate arrays for all possible occupancies, their attacks, and used attack sets
         auto occupancies = std::make_unique<Bitboard[]>(totalOccupancies);
@@ -100,12 +116,12 @@ public:
         {
             occupancies[index] = slider_utils::generateOccupancyMask(index, attackMask);
             attacks[index] = piece == Bishop
-                ? slider_utils::generateBishopAttacksOnTheFly(square, occupancies[index])
-                : slider_utils::generateRookAttacksOnTheFly(square, occupancies[index]);
+                                     ? slider_utils::generateBishopAttacksOnTheFly(square, occupancies[index])
+                                     : slider_utils::generateRookAttacksOnTheFly(square, occupancies[index]);
         }
 
         // Brute-force search for a suitable magic number
-        for (int i = 0; i < UINT64_MAX; i++)
+        for (uint64_t i = 0; i < UINT64_MAX; i++)
         {
             const uint64_t magicNumber = generateCandidateMagicNumber();
             // Skip candidates with too few high bits set (heuristic for better magic numbers)
@@ -143,7 +159,7 @@ public:
             // If no collisions were found, return the valid magic number
             if (!fail)
             {
-                std::println("Found valid magic number: 0x{:016X}ULL", magicNumber);
+                // std::println("Found valid magic number: 0x{:016X}ULL", magicNumber);
                 return magicNumber;
             }
         }
@@ -152,159 +168,144 @@ public:
         return 0;
     }
 
-    /**
-     * @brief Initializes the magic numbers for bishops and rooks.
-     *
-     * This function initializes the precomputed magic numbers for bishops and rooks
-     * for all squares.
-     */
-    static void initializeMagicNumbers()
-    {
-        for (Square square = Square::a8; square <= Square::h1; square++)
-        {
-            m_bishopMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Bishop);
-            m_rookMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Rook);
-        }
-    }
-
 public:
     // clang-format off
     /// Precomputed magic numbers for bishops
     static constexpr std::array<Bitboard, 64> m_bishopMagicNumbers =
     {
-        0x0420041000990118ULL,
-        0x0804842084010000ULL,
-        0x4008024842002008ULL,
-        0x02020A0208201241ULL,
-        0x02040420680000A6ULL,
-        0x000A01100A805002ULL,
-        0x010D1C0120081000ULL,
-        0x8040404048484000ULL,
-        0x0100514498080451ULL,
-        0x0000042818110820ULL,
-        0x0000100450802080ULL,
-        0x35C0080485100008ULL,
-        0x4000011040003104ULL,
-        0x2000211008841000ULL,
-        0x4001004108084106ULL,
-        0x0000020244041444ULL,
-        0x20048A1010100110ULL,
-        0x8020020401040110ULL,
-        0x0014008804509200ULL,
-        0x0008000405606000ULL,
-        0x00040032010C0200ULL,
-        0x4028080101080200ULL,
-        0x404100120D012018ULL,
-        0x40814C010C060100ULL,
-        0x0102C04821080200ULL,
-        0x0148208208111900ULL,
-        0x0908140002440080ULL,
-        0x02C0104254004080ULL,
-        0x2001020004028400ULL,
-        0x034200800C1000A0ULL,
-        0x4819120014220100ULL,
-        0x0000504009140204ULL,
-        0x0A01680801411080ULL,
-        0x000A120211204800ULL,
-        0xCC02202405480800ULL,
-        0x81A4110800840040ULL,
-        0x4020040820040021ULL,
-        0x0884280020020090ULL,
-        0x1490008110008400ULL,
-        0x04F0808100008400ULL,
-        0x0500828840012040ULL,
-        0x0124550808002000ULL,
-        0x0204820801040202ULL,
-        0x00000C4208000480ULL,
-        0x0200C05012100100ULL,
-        0x0402040800202200ULL,
-        0x4002101408924104ULL,
-        0xD008011512000020ULL,
-        0x000088082211C040ULL,
-        0x10008188082A0094ULL,
-        0x0821102201102000ULL,
-        0x020A1C02421A0001ULL,
-        0x48002110020888A0ULL,
-        0x08483B1041020000ULL,
-        0x0008709000831200ULL,
-        0x0060821400408000ULL,
-        0x0080841048040408ULL,
-        0x8106802202100400ULL,
-        0x20C0008500980400ULL,
-        0x80001228E0842402ULL,
-        0x0202001010020218ULL,
-        0x0044010810108080ULL,
-        0x0810462810410200ULL,
-        0x8185010811040180ULL
+        0x01A0080100440044ULL,
+        0x00A0052608A10800ULL,
+        0x8184216202000100ULL,
+        0x88220A0202002200ULL,
+        0x33840420202E0020ULL,
+        0x0386080524000100ULL,
+        0x0406808809400000ULL,
+        0x4082804048202808ULL,
+        0x0044A014090A0C08ULL,
+        0x000420040C2C4040ULL,
+        0x0200108902082000ULL,
+        0xA006024083001002ULL,
+        0x1006445040070040ULL,
+        0x8000120202620400ULL,
+        0x20020A0101201000ULL,
+        0x0940050402020200ULL,
+        0x0140800810040080ULL,
+        0x8044406084108211ULL,
+        0x0004002048002041ULL,
+        0x0224088804101000ULL,
+        0x2403000090400200ULL,
+        0x0032001241100128ULL,
+        0x400C046201048202ULL,
+        0x0020811044008841ULL,
+        0x082020880802C400ULL,
+        0x0001208004040400ULL,
+        0x8404041242080010ULL,
+        0x0841080001004100ULL,
+        0x0001001001004009ULL,
+        0x8408008000406008ULL,
+        0xE068088020440440ULL,
+        0x0012020204208244ULL,
+        0x1058024201880800ULL,
+        0x808C122200600480ULL,
+        0x2001210120500400ULL,
+        0x2004100821040400ULL,
+        0x0240090100801040ULL,
+        0x000210044002081AULL,
+        0x18104484801B2400ULL,
+        0x10180040800504A0ULL,
+        0x0042080442104481ULL,
+        0x8001042220100300ULL,
+        0x8001092290000800ULL,
+        0x0001002018003100ULL,
+        0x020C110124002200ULL,
+        0x4A04209002100900ULL,
+        0x01110A020A404C01ULL,
+        0x2490040482900020ULL,
+        0x0204210168200000ULL,
+        0x004C4202CC205090ULL,
+        0x0A010420941000B0ULL,
+        0x9100002C42020820ULL,
+        0x0000019020220001ULL,
+        0x1200444810190012ULL,
+        0x0010510108008800ULL,
+        0x0110040840802004ULL,
+        0x0840120201044000ULL,
+        0x02000022084A1820ULL,
+        0x004000004202410AULL,
+        0x0000200018C20884ULL,
+        0x0400000022042400ULL,
+        0x1450424010015240ULL,
+        0x0020100408809C01ULL,
+        0x0110049108122100ULL
     };
 
     /// Precomputed magic numbers for rooks
     static constexpr std::array<Bitboard, 64> m_rookMagicNumbers =
     {
-        0xE280008020400014ULL,
-        0x2240044010002002ULL,
-        0x1080100020008008ULL,
-        0x1100080420100101ULL,
-        0x0100030004080010ULL,
-        0x03000C0002010008ULL,
-        0x2080008001000200ULL,
-        0x2100030001506482ULL,
-        0x8400802080004000ULL,
-        0x0000401000200044ULL,
-        0x0003801000842008ULL,
-        0x0102000A00402014ULL,
-        0x010A000410220008ULL,
-        0x0412000200100508ULL,
-        0x1004004194081012ULL,
-        0x00008000800F6100ULL,
-        0x0080084000502000ULL,
-        0x0A80210040010080ULL,
-        0x0006410020001104ULL,
-        0x0100828010000801ULL,
-        0x14A0808008000401ULL,
-        0x4028808004000200ULL,
-        0x0880040001100208ULL,
-        0x00242A0004A90444ULL,
-        0x1040004080002080ULL,
-        0x081000414002200CULL,
-        0x0015001100200040ULL,
-        0x0090000808010080ULL,
-        0x0408040080800800ULL,
-        0x1002000200100805ULL,
-        0x8011000100020004ULL,
-        0x0000649200010044ULL,
-        0xC140400081800220ULL,
-        0x8088200044401000ULL,
-        0x000A200041001100ULL,
-        0x4200100084800800ULL,
-        0x0008040080800800ULL,
-        0x0010020080800400ULL,
-        0x1200880104001002ULL,
-        0x0100040082000041ULL,
-        0x0080010080410021ULL,
-        0x4000500020004000ULL,
-        0x2980200304110040ULL,
-        0x0040100008008080ULL,
-        0x1000100801010004ULL,
-        0x0010020004008080ULL,
-        0x0004080210040081ULL,
-        0x0149241040820005ULL,
-        0x110D448A02650200ULL,
-        0x0240400081002500ULL,
-        0x0408402481120200ULL,
-        0x2102210010000900ULL,
-        0x0018008004000880ULL,
-        0x0008800200040080ULL,
-        0x0060821849100400ULL,
-        0x0001002080420100ULL,
-        0x2440410200228416ULL,
-        0x0C81008028104001ULL,
-        0x0800800840120022ULL,
-        0x4146000810044022ULL,
-        0x000200100460C802ULL,
-        0x0101000400020801ULL,
-        0x0881004402000CA1ULL,
-        0x0003070040218402ULL
+        0x0880001040008021ULL,
+        0x0340004220001000ULL,
+        0x0200084080D32200ULL,
+        0x208008000482D000ULL,
+        0x1880080104008002ULL,
+        0x0900140041000802ULL,
+        0xC200012200008804ULL,
+        0x46000C8020440201ULL,
+        0x8410800080400022ULL,
+        0x0208802000804012ULL,
+        0x4002001200204080ULL,
+        0x0140800800801000ULL,
+        0x2075000800110104ULL,
+        0x1002000200081004ULL,
+        0x2104800100800200ULL,
+        0x0003000041002882ULL,
+        0x0900908000400020ULL,
+        0x0400810020400100ULL,
+        0x6200420020120080ULL,
+        0x0442020010082040ULL,
+        0x4439010008001005ULL,
+        0x0404808004000200ULL,
+        0x0200808002000100ULL,
+        0x2000020000BC0041ULL,
+        0x4100400080008020ULL,
+        0x0800400080200085ULL,
+        0x0000100080802000ULL,
+        0x00A0401200200A01ULL,
+        0x0405011100040801ULL,
+        0x0030020080800400ULL,
+        0x0240020400480110ULL,
+        0x0113208E00040041ULL,
+        0x4082004082002100ULL,
+        0x0804201008400240ULL,
+        0x5030040020A00800ULL,
+        0x9008020A80801001ULL,
+        0x3040080080800402ULL,
+        0x800200244A000810ULL,
+        0x4002100104000802ULL,
+        0x8040040082000061ULL,
+        0x2080008040008020ULL,
+        0x0040008100430020ULL,
+        0x4262002880420010ULL,
+        0x005200C020920008ULL,
+        0x8844008040080800ULL,
+        0x9422104004080120ULL,
+        0x1000040200010100ULL,
+        0x0008209044020011ULL,
+        0x1089003206408200ULL,
+        0x2020004000300040ULL,
+        0x0000812000100480ULL,
+        0x0044201000090100ULL,
+        0x0404800402080080ULL,
+        0x1007020004008080ULL,
+        0x5800220821100400ULL,
+        0x4900008C00610200ULL,
+        0x0000410010208001ULL,
+        0x0303024000802015ULL,
+        0x0002004008102082ULL,
+        0x4010042009001001ULL,
+        0x0096016010240822ULL,
+        0x011A001004080102ULL,
+        0x00A0810210084094ULL,
+        0x5610210080442406ULL
     };
     // clang-format on
 
