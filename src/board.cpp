@@ -553,7 +553,6 @@ void Board::generateKingCastlingMoves(PieceWithColor piece, std::vector<Move>& m
                 if (m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::b1) == 0 &&
                     m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::c1) == 0 &&
                     m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::d1) == 0 &&
-                    !isSquareAttacked(Square::b1, Black) &&
                     !isSquareAttacked(Square::c1, Black) &&
                     !isSquareAttacked(Square::d1, Black) &&
                     !isSquareAttacked(Square::e1, Black))
@@ -582,7 +581,6 @@ void Board::generateKingCastlingMoves(PieceWithColor piece, std::vector<Move>& m
                 if (m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::b8) == 0 &&
                     m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::c8) == 0 &&
                     m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(Square::d8) == 0 &&
-                    !isSquareAttacked(Square::b8, White) &&
                     !isSquareAttacked(Square::c8, White) &&
                     !isSquareAttacked(Square::d8, White) &&
                     !isSquareAttacked(Square::e8, White))
