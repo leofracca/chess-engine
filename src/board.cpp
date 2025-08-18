@@ -262,8 +262,9 @@ void Board::printAttackedSquares(const Side side) const
     }
 }
 
-void Board::generateMoves()
+std::vector<Move> Board::generateMoves()
 {
+    std::vector<Move> moves;
     PieceWithColor pawn, king;
 
     // Determine the side to move and set the pawn and king pieces accordingly
@@ -284,18 +285,23 @@ void Board::generateMoves()
         // Generate pawn moves separately
         if (piece == WhitePawn || piece == BlackPawn)
         {
-            generatePawnMoves(piece);
+            generatePawnMoves(piece, moves);
         }
 
         // Generate moves for all other pieces
-        generatePieceMoves(piece);
+        else if (piece != WhitePawn && piece != BlackPawn)
+        {
+            generatePieceMoves(piece, moves);
+        }
 
         // Generate castling moves for kings
         if (piece == WhiteKing || piece == BlackKing)
         {
-            generateKingCastlingMoves(piece);
+            generateKingCastlingMoves(piece, moves);
         }
     }
+
+    return moves;
 }
 
 bool Board::makeMove(const Move& move)
@@ -428,12 +434,7 @@ bool Board::makeMove(const Move& move)
     return true; // Move was valid
 }
 
-const std::vector<Move>& Board::getMoves() const
-{
-    return m_moves;
-}
-
-void Board::generatePawnMoves(const PieceWithColor piece)
+void Board::generatePawnMoves(const PieceWithColor piece, std::vector<Move>& moves)
 {
     constexpr Bitboard emptyBitboard;
     Bitboard bitboardPiece = m_bitboardsPieces[std::to_underlying(piece)];
@@ -460,16 +461,16 @@ void Board::generatePawnMoves(const PieceWithColor piece)
             // Promotion
             if (isPromotion)
             {
-                m_moves.emplace_back(source, target, piece, WhiteKnight, false, false, false, false);
-                m_moves.emplace_back(source, target, piece, WhiteBishop, false, false, false, false);
-                m_moves.emplace_back(source, target, piece, WhiteRook, false, false, false, false);
-                m_moves.emplace_back(source, target, piece, WhiteQueen, false, false, false, false);
+                moves.emplace_back(source, target, piece, WhiteKnight, false, false, false, false);
+                moves.emplace_back(source, target, piece, WhiteBishop, false, false, false, false);
+                moves.emplace_back(source, target, piece, WhiteRook, false, false, false, false);
+                moves.emplace_back(source, target, piece, WhiteQueen, false, false, false, false);
             }
             // Normal move
             else
             {
                 // Move one square forward
-                m_moves.emplace_back(source, target, piece, InvalidPiece, false, false, false, false);
+                moves.emplace_back(source, target, piece, InvalidPiece, false, false, false, false);
 
                 // Move two squares forward
                 if (isDoublePush)
@@ -477,7 +478,7 @@ void Board::generatePawnMoves(const PieceWithColor piece)
                     target = target + offset; // Move two squares forward
                     if (m_occupancies[std::to_underlying(WhiteAndBlack)].getBit(target) == 0)
                     {
-                        m_moves.emplace_back(source, target, piece, InvalidPiece, false, true, false, false);
+                        moves.emplace_back(source, target, piece, InvalidPiece, false, true, false, false);
                     }
                 }
             }
@@ -490,15 +491,15 @@ void Board::generatePawnMoves(const PieceWithColor piece)
             // Capture and promotion
             if (isPromotion)
             {
-                m_moves.emplace_back(source, target, piece, WhiteKnight, true, false, false, false);
-                m_moves.emplace_back(source, target, piece, WhiteBishop, true, false, false, false);
-                m_moves.emplace_back(source, target, piece, WhiteRook, true, false, false, false);
-                m_moves.emplace_back(source, target, piece, WhiteQueen, true, false, false, false);
+                moves.emplace_back(source, target, piece, WhiteKnight, true, false, false, false);
+                moves.emplace_back(source, target, piece, WhiteBishop, true, false, false, false);
+                moves.emplace_back(source, target, piece, WhiteRook, true, false, false, false);
+                moves.emplace_back(source, target, piece, WhiteQueen, true, false, false, false);
             }
             // Normal capture
             else
             {
-                m_moves.emplace_back(source, target, piece, InvalidPiece, true, false, false, false);
+                moves.emplace_back(source, target, piece, InvalidPiece, true, false, false, false);
             }
 
             attacks.clearBit(target);
@@ -520,7 +521,7 @@ void Board::generatePawnMoves(const PieceWithColor piece)
             if (enPassantBitboard != emptyBitboard)
             {
                 // If the target square is the en passant square, capture the pawn
-                m_moves.emplace_back(source, m_enPassantSquare, piece, InvalidPiece, true, false, true, false);
+                moves.emplace_back(source, m_enPassantSquare, piece, InvalidPiece, true, false, true, false);
             }
         }
 
@@ -529,7 +530,7 @@ void Board::generatePawnMoves(const PieceWithColor piece)
     }
 }
 
-void Board::generateKingCastlingMoves(PieceWithColor piece)
+void Board::generateKingCastlingMoves(PieceWithColor piece, std::vector<Move>& moves) const
 {
     switch (piece)
     {
@@ -543,7 +544,7 @@ void Board::generateKingCastlingMoves(PieceWithColor piece)
                     !isSquareAttacked(Square::f1, Black) &&
                     !isSquareAttacked(Square::g1, Black))
                 {
-                    m_moves.emplace_back(Square::e1, Square::g1, piece, InvalidPiece, false, false, false, true);
+                    moves.emplace_back(Square::e1, Square::g1, piece, InvalidPiece, false, false, false, true);
                 }
             }
             if (m_castlingRights & CastlingRights::WhiteLong)
@@ -557,7 +558,7 @@ void Board::generateKingCastlingMoves(PieceWithColor piece)
                     !isSquareAttacked(Square::d1, Black) &&
                     !isSquareAttacked(Square::e1, Black))
                 {
-                    m_moves.emplace_back(Square::e1, Square::c1, piece, InvalidPiece, false, false, false, true);
+                    moves.emplace_back(Square::e1, Square::c1, piece, InvalidPiece, false, false, false, true);
                 }
             }
             break;
@@ -571,7 +572,7 @@ void Board::generateKingCastlingMoves(PieceWithColor piece)
                     !isSquareAttacked(Square::f8, White) &&
                     !isSquareAttacked(Square::g8, White))
                 {
-                    m_moves.emplace_back(Square::e8, Square::g8, piece, InvalidPiece, false, false, false, true);
+                    moves.emplace_back(Square::e8, Square::g8, piece, InvalidPiece, false, false, false, true);
                 }
             }
 
@@ -586,7 +587,7 @@ void Board::generateKingCastlingMoves(PieceWithColor piece)
                     !isSquareAttacked(Square::d8, White) &&
                     !isSquareAttacked(Square::e8, White))
                 {
-                    m_moves.emplace_back(Square::e8, Square::c8, piece, InvalidPiece, false, false, false, true);
+                    moves.emplace_back(Square::e8, Square::c8, piece, InvalidPiece, false, false, false, true);
                 }
             }
             break;
@@ -596,7 +597,7 @@ void Board::generateKingCastlingMoves(PieceWithColor piece)
 }
 
 
-void Board::generatePieceMoves(const PieceWithColor piece)
+void Board::generatePieceMoves(const PieceWithColor piece, std::vector<Move>& moves) const
 {
     const Side side = piece >= WhitePawn && piece <= WhiteKing ? White : Black;
     const Side opponentSide = side == White ? Black : White;
@@ -652,12 +653,12 @@ void Board::generatePieceMoves(const PieceWithColor piece)
             // Quiet move
             if (opponentOccupancy.getBit(target) == 0)
             {
-                m_moves.emplace_back(source, target, piece, InvalidPiece, false, false, false, false);
+                moves.emplace_back(source, target, piece, InvalidPiece, false, false, false, false);
             }
             // Capture move
             else
             {
-                m_moves.emplace_back(source, target, piece, InvalidPiece, true, false, false, false);
+                moves.emplace_back(source, target, piece, InvalidPiece, true, false, false, false);
             }
 
             attacks.clearBit(target);

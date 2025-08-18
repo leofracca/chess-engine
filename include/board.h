@@ -100,9 +100,12 @@ public:
 
     /**
      * @brief Generate all possible moves for the current board state.
-     * This function will populate the internal move list with all legal moves.
+     *
+     * @note Currently using a vector. Maybe a fixed-size array would be better, even if it wastes some space.
+     *
+     * @return The list of generated moves.
      */
-    void generateMoves();
+    std::vector<Move> generateMoves();
 
     /**
      * @brief Make a move.
@@ -111,13 +114,6 @@ public:
      * @return True if the move was valid, false otherwise.
      */
     [[nodiscard]] bool makeMove(const Move& move);
-
-    /**
-     * @brief Get the list of generated moves.
-     *
-     * @return A vector containing all generated moves.
-     */
-    [[nodiscard]] const std::vector<Move>& getMoves() const;
 
 private:
     /**
@@ -157,15 +153,17 @@ private:
      * @brief Generate moves for pawns of a given side.
      *
      * @param piece The piece for which to generate pawn moves (i.e., WhitePawn or BlackPawn).
+     * @param moves The vector to store the generated moves.
      */
-    inline void generatePawnMoves(PieceWithColor piece);
+    inline void generatePawnMoves(PieceWithColor piece, std::vector<Move>& moves);
 
     /**
      * @brief Generate castling moves for the king of a given side.
      *
      * @param piece The piece for which to generate castling moves (i.e., WhiteKing or BlackKing).
+     * @param moves The vector to store the generated moves.
      */
-    inline void generateKingCastlingMoves(PieceWithColor piece);
+    inline void generateKingCastlingMoves(PieceWithColor piece, std::vector<Move>& moves) const;
 
     /**
      * @brief Generate moves for a specific piece with color.
@@ -178,10 +176,11 @@ private:
      * Castling moves are handled in `generateKingCastlingMoves`.
      *
      * @param piece The piece with color for which to generate moves.
+     * @param moves The vector to store the generated moves.
      * @see generatePawnMoves
      * @see generateKingCastlingMoves
      */
-    inline void generatePieceMoves(PieceWithColor piece);
+    inline void generatePieceMoves(PieceWithColor piece, std::vector<Move>& moves) const;
 
 private:
     static constexpr int N_ALL_PIECES = 12; //< 6 pieces for each side
@@ -195,9 +194,6 @@ private:
     Square m_enPassantSquare; //< En passant square, if any
     int m_halfMoveClock; //< Half-move clock for the fifty-move rule
     int m_fullMoveNumber; //< Full move number
-
-    // TODO: Currently using a vector. Profile to check if a fixed-size and a counting approach is faster.
-    std::vector<Move> m_moves; //< List of generated moves
 
     static constexpr std::array<std::string_view, board_dimensions::N_SQUARES> s_squares = {
         "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
