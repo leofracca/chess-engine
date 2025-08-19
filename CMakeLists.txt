@@ -38,18 +38,50 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 list(REMOVE_ITEM SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp)
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS include/*.h)
 
-add_executable(chess_engine ${PROJECT_SOURCE_DIR}/src/main.cpp ${SOURCES} ${HEADERS})
-
-target_include_directories(chess_engine
-        PUBLIC ${PROJECT_SOURCE_DIR}/include
+add_library(chess_engine_lib)
+add_executable(chess_engine
+        ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 
+target_sources(chess_engine_lib
+        PUBLIC  ${HEADERS}
+        PRIVATE ${SOURCES}
+)
+
+target_include_directories(chess_engine_lib
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include
+        PRIVATE ${PROJECT_SOURCE_DIR}/src
+)
+target_include_directories(chess_engine
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include
+        PRIVATE ${PROJECT_SOURCE_DIR}/src
+)
+
+target_compile_options(chess_engine_lib
+        PRIVATE ${COMPILER_FLAGS}
+        PRIVATE $<$<BOOL:${COVERAGE}>:--coverage>
+)
 target_compile_options(chess_engine
         PRIVATE ${COMPILER_FLAGS}
         PRIVATE $<$<BOOL:${COVERAGE}>:--coverage>
 )
+
+target_link_options(chess_engine_lib
+        PRIVATE ${LINKER_FLAGS}
+)
 target_link_options(chess_engine
         PRIVATE ${LINKER_FLAGS}
+)
+
+target_link_libraries(chess_engine
+        PRIVATE chess_engine_lib
+)
+
+# Install
+file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+install(
+        FILES ${CMAKE_BINARY_DIR}/chess_engine
+        DESTINATION ${PROJECT_SOURCE_DIR}/bin
 )
 
 # Install
@@ -95,3 +127,35 @@ if(DOXYGEN_FOUND)
 else()
     message(WARNING "Doxygen need to be installed to generate the doxygen documentation.")
 endif()
+
+#########
+# Tests #
+#########
+enable_testing()
+file(GLOB_RECURSE TESTS   CONFIGURE_DEPENDS tests/*.cpp)
+
+include(FetchContent)
+# Fetch latest Google Test
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        main
+)
+FetchContent_MakeAvailable(googletest)
+
+# Add the tests
+add_executable(chess_engine_tests ${TESTS} ${HEADERS})
+target_include_directories(chess_engine_tests
+        PUBLIC ${PROJECT_SOURCE_DIR}/include
+        PRIVATE ${googletest_SOURCE_DIR}/googletest/include
+)
+target_link_libraries(chess_engine_tests chess_engine_lib gtest_main gmock gtest)
+target_compile_options(chess_engine_tests
+        PRIVATE ${COMPILER_FLAGS}
+        PRIVATE $<$<BOOL:${COVERAGE}>:--coverage>
+)
+target_link_options(chess_engine_tests
+        PRIVATE ${LINKER_FLAGS}
+)
+include(GoogleTest)
+gtest_discover_tests(chess_engine_tests)
