@@ -110,6 +110,13 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
     return attacks;
 }
 
+/**
+ * @brief Gets the precomputed knight attacks for a given square.
+ *
+ * @param square The square from which to generate knight attacks.
+ * @param occupancy The occupancy bitboard (not used for knight attacks, but included for consistency).
+ * @return The bitboard representing the knight attacks from the given square.
+ */
 [[nodiscard]] constexpr Bitboard getKnightAttacks(const Square square, const Bitboard occupancy)
 {
     // Knight attacks do not depend on occupancy, so we can return the precomputed attacks directly
@@ -120,6 +127,13 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
     return knightAttacks[std::to_underlying(square)];
 }
 
+/**
+ * @brief Gets the precomputed bishop attacks for a given square.
+ *
+ * @param square The square from which to generate bishop attacks.
+ * @param occupancy The occupancy bitboard.
+ * @return The bitboard representing the bishop attacks from the given square.
+ */
 [[nodiscard]] constexpr Bitboard getBishopAttacks(const Square square, const Bitboard occupancy)
 {
     // Get the number of relevant occupancy bits for the given square
@@ -131,6 +145,13 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
     return bishopAttacks[std::to_underlying(square)][magicIndex];
 }
 
+/**
+ * @brief Gets the precomputed rook attacks for a given square.
+ *
+ * @param square The square from which to generate rook attacks.
+ * @param occupancy The occupancy bitboard.
+ * @return The bitboard representing the rook attacks from the given square.
+ */
 [[nodiscard]] constexpr Bitboard getRookAttacks(const Square square, const Bitboard occupancy)
 {
     // Get the number of relevant occupancy bits for the given square
@@ -142,12 +163,26 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
     return rookAttacks[std::to_underlying(square)][magicIndex];
 }
 
+/**
+ * @brief Gets the precomputed queen attacks for a given square.
+ *
+ * @param square The square from which to generate queen attacks.
+ * @param occupancy The occupancy bitboard.
+ * @return The bitboard representing the queen attacks from the given square.
+ */
 [[nodiscard]] constexpr Bitboard getQueenAttacks(const Square square, const Bitboard occupancy)
 {
     // Queen attacks are a combination of bishop and rook attacks
     return getBishopAttacks(square, occupancy) | getRookAttacks(square, occupancy);
 }
 
+/**
+ * @brief Gets the precomputed king attacks for a given square.
+ *
+ * @param square The square from which to generate king attacks.
+ * @param occupancy The occupancy bitboard (not used for king attacks, but included for consistency).
+ * @return The bitboard representing the king attacks from the given square.
+ */
 [[nodiscard]] constexpr Bitboard getKingAttacks(const Square square, const Bitboard occupancy)
 {
     // King attacks do not depend on occupancy, so we can return the precomputed attacks directly
@@ -158,6 +193,9 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
     return kingAttacks[std::to_underlying(square)];
 }
 
+/**
+ * @brief Initializes precomputed attacks for leaper pieces (pawns, knights, kings).
+ */
 constexpr void initLeaperAttacks()
 {
     for (int i = 0; i < board_dimensions::N_SQUARES; ++i)
@@ -169,6 +207,16 @@ constexpr void initLeaperAttacks()
     }
 }
 
+/**
+ * @brief Initializes precomputed attacks for slider pieces (bishops and rooks).
+ *
+ * @tparam GenerateAttacks A callable that generates attacks for a given square.
+ * @tparam GenerateAttacksOnTheFly A callable that generates attacks on the fly based on occupancy.
+ * @tparam AttackMasks An array holding the attack masks for each square.
+ * @tparam Attacks An array holding the precomputed attacks for each square and occupancy.
+ * @tparam MagicNumbers An array holding the magic numbers.
+ * @tparam RelevantBits An array holding the number of relevant bits for each square.
+ */
 template<typename GenerateAttacks, typename GenerateAttacksOnTheFly, typename AttackMasks, typename Attacks, typename MagicNumbers, typename RelevantBits>
 constexpr void initSlider(
         GenerateAttacks generateAttacks,
@@ -200,6 +248,12 @@ constexpr void initSlider(
     }
 }
 
+/**
+ * @brief Initializes precomputed attacks for slider pieces (bishops and rooks).
+ *
+ * Initializes the precomputed attacks for bishops and rooks using the
+ * `initSlider` function template.
+ */
 constexpr void initSliderAttacks()
 {
     initSlider(
@@ -219,6 +273,9 @@ constexpr void initSliderAttacks()
             slider_utils::ROOK_RELEVANT_BITS);
 }
 
+/**
+ * @brief Initializes all precomputed piece attacks.
+ */
 inline void initAllPieces()
 {
     initLeaperAttacks();
