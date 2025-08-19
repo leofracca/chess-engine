@@ -11,6 +11,12 @@ cmake ..
 make
 ```
 
+## Testing
+
+```shell
+make test
+```
+
 ## Documentation
 
 To create the documentation:
@@ -21,7 +27,9 @@ make doc
 
 The `docs` folder will be created in the bin directory.
 
-To use this command `Doxygen` is required. OPTIONAL: you will also need the `texlive-font-utils` package to have a LaTeX documentation.
+To use this command `Doxygen` is required.
+
+OPTIONAL: you will also need the `texlive-font-utils` package to have a LaTeX documentation.
 
 ## Resources
 
