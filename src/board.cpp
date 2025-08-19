@@ -461,10 +461,20 @@ void Board::generatePawnMoves(const PieceWithColor piece, std::vector<Move>& mov
             // Promotion
             if (isPromotion)
             {
-                moves.emplace_back(source, target, piece, WhiteKnight, false, false, false, false);
-                moves.emplace_back(source, target, piece, WhiteBishop, false, false, false, false);
-                moves.emplace_back(source, target, piece, WhiteRook, false, false, false, false);
-                moves.emplace_back(source, target, piece, WhiteQueen, false, false, false, false);
+                if (piece == WhitePawn)
+                {
+                    moves.emplace_back(source, target, piece, WhiteKnight, false, false, false, false);
+                    moves.emplace_back(source, target, piece, WhiteBishop, false, false, false, false);
+                    moves.emplace_back(source, target, piece, WhiteRook, false, false, false, false);
+                    moves.emplace_back(source, target, piece, WhiteQueen, false, false, false, false);
+                }
+                else
+                {
+                    moves.emplace_back(source, target, piece, BlackKnight, false, false, false, false);
+                    moves.emplace_back(source, target, piece, BlackBishop, false, false, false, false);
+                    moves.emplace_back(source, target, piece, BlackRook, false, false, false, false);
+                    moves.emplace_back(source, target, piece, BlackQueen, false, false, false, false);
+                }
             }
             // Normal move
             else
@@ -491,10 +501,20 @@ void Board::generatePawnMoves(const PieceWithColor piece, std::vector<Move>& mov
             // Capture and promotion
             if (isPromotion)
             {
-                moves.emplace_back(source, target, piece, WhiteKnight, true, false, false, false);
-                moves.emplace_back(source, target, piece, WhiteBishop, true, false, false, false);
-                moves.emplace_back(source, target, piece, WhiteRook, true, false, false, false);
-                moves.emplace_back(source, target, piece, WhiteQueen, true, false, false, false);
+                if (piece == WhitePawn)
+                {
+                    moves.emplace_back(source, target, piece, WhiteKnight, true, false, false, false);
+                    moves.emplace_back(source, target, piece, WhiteBishop, true, false, false, false);
+                    moves.emplace_back(source, target, piece, WhiteRook, true, false, false, false);
+                    moves.emplace_back(source, target, piece, WhiteQueen, true, false, false, false);
+                }
+                else
+                {
+                    moves.emplace_back(source, target, piece, BlackKnight, true, false, false, false);
+                    moves.emplace_back(source, target, piece, BlackBishop, true, false, false, false);
+                    moves.emplace_back(source, target, piece, BlackRook, true, false, false, false);
+                    moves.emplace_back(source, target, piece, BlackQueen, true, false, false, false);
+                }
             }
             // Normal capture
             else

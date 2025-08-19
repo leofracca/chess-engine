@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+# include <print>
 
 #include "board.h"
 #include "pregenerated_moves.h"
@@ -9,7 +10,7 @@ using namespace chess_engine;
 
 // https://www.chessprogramming.org/Perft_Results
 
-uint64_t perft(const int depth, Board& board/*, const bool first = true*/)
+uint64_t perft(const int depth, Board& board, const bool first = true)
 {
     if (depth == 0)
     {
@@ -24,16 +25,22 @@ uint64_t perft(const int depth, Board& board/*, const bool first = true*/)
         if (!board.makeMove(move))
             continue;
 
-        // uint64_t cumulativeNodes = 0;
-        // if (first)
-        //     cumulativeNodes = nodes;
-        nodes += perft(depth - 1, board/*, false*/);
-        // if (first)
-        // {
-        //     uint64_t oldNodes = nodes - cumulativeNodes;
-        //     std::println("{}{} -> ({} nodes)", Board::s_squares[std::to_underlying(move.getSource())], Board::s_squares[std::to_underlying(move.getTarget())], oldNodes);
-        // }
-        board = copy; // Reset the board to the original state after each move
+        uint64_t cumulativeNodes = 0;
+        if (first)
+        {
+            cumulativeNodes = nodes;
+        }
+
+        nodes += perft(depth - 1, board, false);
+
+        if (first)
+        {
+            uint64_t oldNodes = nodes - cumulativeNodes;
+            std::println("{}{}: {}", Board::s_squares[std::to_underlying(move.getSource())], Board::s_squares[std::to_underlying(move.getTarget())], oldNodes);
+        }
+
+        // Reset the board to the original state after each move
+        board = copy;
     }
 
     return nodes;
@@ -72,7 +79,6 @@ TEST(Perft, Position1)
     // EXPECT_EQ(nodes, 69352859712417) << "Expected 69352859712417 moves for the initial position at depth 10";
 }
 
-# include <print>
 TEST(Perft, Position2)
 {
     Board board;
@@ -113,10 +119,10 @@ TEST(Perft, Position3)
     EXPECT_EQ(nodes, 43238) << "Expected 43238 moves for the position at depth 4";
     nodes = perft(5, board);
     EXPECT_EQ(nodes, 674624) << "Expected 674624 moves for the position at depth 5";
+    nodes = perft(6, board);
+    EXPECT_EQ(nodes, 11030083) << "Expected 11030083 moves for the position at depth 6";
 
-    // Following tests are failing
-    // nodes = perft(6, board);
-    // EXPECT_EQ(nodes, 11030083) << "Expected 11030083 moves for the position at depth 6";
+    // Following tests take too long to complete. Disable them for now
     // nodes = perft(7, board);
     // EXPECT_EQ(nodes, 178633661) << "Expected 178633661 moves for the position at depth 7";
     // nodes = perft(8, board);
@@ -134,15 +140,15 @@ TEST(Perft, Position4)
     EXPECT_EQ(nodes, 6) << "Expected 6 moves for the position at depth 1";
     nodes = perft(2, board);
     EXPECT_EQ(nodes, 264) << "Expected 264 moves for the position at depth 2";
+    nodes = perft(3, board);
+    EXPECT_EQ(nodes, 9467) << "Expected 9467 moves for the position at depth 3";
+    nodes = perft(4, board);
+    EXPECT_EQ(nodes, 422333) << "Expected 422333 moves for the position at depth 4";
+    nodes = perft(5, board);
+    EXPECT_EQ(nodes, 15833292) << "Expected 15833292 moves for the position at depth 5";
 
-    // Following tests are failing
-    // nodes = perft(3, board);
-    // EXPECT_EQ(nodes, 9467) << "Expected 9467 moves for the position at depth 3";
-    // nodes = perft(4, board);
-    // EXPECT_EQ(nodes, 422333) << "Expected 422333 moves for the position at depth 4";
-    // nodes = perft(3, board);
-    // EXPECT_EQ(nodes, 15833292) << "Expected 15833292 moves for the position at depth 5";
-    // nodes = perft(4, board);
+    // Following tests take too long to complete. Disable them for now
+    // nodes = perft(6, board);
     // EXPECT_EQ(nodes, 706045033) << "Expected 706045033 moves for the position at depth 6";
 }
 
