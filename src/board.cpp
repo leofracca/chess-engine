@@ -103,7 +103,7 @@ PieceWithColor Board::FENCharacterToPieceWithColor(const char fenChar)
     }
 }
 
-void Board::parseFENString(const std::string& fenString)
+void Board::parseFENString(const std::string_view fenString)
 {
     // See https://www.chess.com/terms/fen-chess
 

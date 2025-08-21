@@ -96,7 +96,7 @@ public:
      *
      * @param fenString FEN string representing the board state.
      */
-    void parseFENString(const std::string& fenString);
+    void parseFENString(std::string_view fenString);
 
     /**
      * @brief Generate all possible moves for the current board state.
