@@ -2,9 +2,11 @@ name: Build and test
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches: [ main ]
   pull_request:
-    branches: [ $default-branch ]
+    branches: [ main ]
+  workflow_dispatch:
+
 
 # env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -25,6 +27,6 @@ jobs:
       # run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
       run: cmake --build ${{github.workspace}}/build
 
-    - name: Test
+    - name: Run tests
       working-directory: ${{github.workspace}}/build
-      run: make test
+      run: ctest --output-on-failure
