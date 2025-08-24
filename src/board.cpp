@@ -117,7 +117,7 @@ void Board::parseFENString(const std::string_view fenString)
     m_fullMoveNumber = 0;
 
     // Index to track the current position in the FEN string
-    int index = 0;
+    size_t index = 0;
 
     // Parse FEN: Piece placement
     for (Square square = Square::a8; square <= Square::h1; square++)
@@ -191,7 +191,7 @@ void Board::parseFENString(const std::string_view fenString)
     index++; // Skip the space after halfmove clock
 
     // Parse FEN: Fullmove number
-    while (isdigit(fenString[index]))
+    while (index < fenString.size() && isdigit(fenString[index]))
     {
         m_fullMoveNumber = m_fullMoveNumber * 10 + (fenString[index++] - '0');
     }
