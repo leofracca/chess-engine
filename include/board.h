@@ -107,13 +107,14 @@ public:
      */
     std::vector<Move> generateMoves();
 
+    // FIXME: Does makeMove really need to return bool or can it be void and just assume the move is valid?
     /**
      * @brief Make a move.
      *
      * @param move The move to make.
      * @return True if the move was valid, false otherwise.
      */
-    [[nodiscard]] bool makeMove(const Move& move);
+    /*[[nodiscard]]*/ bool makeMove(const Move& move);
 
 private:
     /**
@@ -207,5 +208,7 @@ public:
         "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"
     };
+
+    static constexpr std::string_view s_startingFENString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; //< Standard starting position in FEN notation
 };
 } // namespace chess_engine

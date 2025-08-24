@@ -14,7 +14,8 @@ option(USAN     OFF)
 # Coverage
 option(COVERAGE OFF)
 
-set(COMPILER_FLAGS -Wall -Wextra -Wpedantic -Werror)
+#set(COMPILER_FLAGS -Wall -Wextra -Wpedantic -Werror)
+set(COMPILER_FLAGS -Wall -Wextra -Wpedantic) # -Werror is too strict for now
 if (NOT COVERAGE)
     set(COMPILER_FLAGS ${COMPILER_FLAGS} -O3)
 else ()

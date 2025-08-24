@@ -8,6 +8,8 @@
  */
 #pragma once
 
+#include <string>
+
 #include "bitboard.h"
 #include "pieces.h"
 
@@ -98,6 +100,8 @@ public:
      * @return True if the move is a castling move, false otherwise.
      */
     [[nodiscard]] bool isCastling() const;
+
+    [[nodiscard]] std::string toString() const;
 
 private:
     Square m_source;  //< Source square of the move

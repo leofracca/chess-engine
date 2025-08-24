@@ -1,5 +1,7 @@
 #include "move.h"
 
+#include "board.h"
+
 namespace chess_engine
 {
 Move::Move()
@@ -53,6 +55,40 @@ bool Move::isEnPassant() const
 bool Move::isCastling() const
 {
     return m_isCastling;
+}
+
+std::string Move::toString() const
+{
+    std::string result;
+    result += Board::s_squares[std::to_underlying(m_source)];
+    result += Board::s_squares[std::to_underlying(m_target)];
+
+    if (m_promotedPiece != InvalidPiece)
+    {
+        switch (m_promotedPiece)
+        {
+            case WhiteKnight:
+            case BlackKnight:
+                result += 'n';
+                break;
+            case WhiteBishop:
+            case BlackBishop:
+                result += 'b';
+                break;
+            case WhiteRook:
+            case BlackRook:
+                result += 'r';
+                break;
+            case WhiteQueen:
+            case BlackQueen:
+                result += 'q';
+                break;
+            default:
+                break;
+        }
+    }
+
+    return result;
 }
 
 } // namespace chess_engine
