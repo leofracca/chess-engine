@@ -2,6 +2,8 @@
 #include <print>
 #include <string>
 
+#include "evaluate.h"
+#include "search.h"
 #include "uci_connection.h"
 
 namespace chess_engine
@@ -86,7 +88,8 @@ void UCIConnection::parsePosition(const std::string_view command, Board& board)
                 move = movesString.substr(start, end - start);
             }
 
-            bool isValidMove = parseMove(move, board);
+            parseMove(move, board);
+            board.print();
             start = end + 1;
         }
     }
@@ -124,19 +127,7 @@ void UCIConnection::parseGo(const std::string_view command, Board& board)
         depth = 6; // Default depth
     }
 
-    std::println("{}", depth);
-
-    // TODO: Implement a real search algorithm
-    // For now, just generate moves and play the first one. Very smart :)
-    if (depth > 0)
-    {
-        auto moves = board.generateMoves();
-        if (!moves.empty())
-        {
-            // For now, just play the first move
-            board.makeMove(moves[0]);
-            std::println("bestmove {}", moves[0].toString());
-        }
-    }
+    Search::search(board, depth);
+    std::println("bestmove {}", Search::s_bestMove.toString());
 }
 } // namespace chess_engine

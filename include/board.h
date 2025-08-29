@@ -116,6 +116,24 @@ public:
      */
     /*[[nodiscard]]*/ bool makeMove(const Move& move);
 
+    [[nodiscard]] Bitboard getBitboardForPiece(const PieceWithColor piece) const;
+
+    /**
+     * @brief Check if a square is attacked by a given side.
+     *
+     * @param square The square to check for attacks.
+     * @param side The side of the attacker.
+     * @return True if the square is attacked by the given side, false otherwise.
+     */
+    [[nodiscard]] bool isSquareAttacked(Square square, Side side) const;
+
+    /**
+     * @brief Get the side to move.
+     *
+     * @return The side to move.
+     */
+    [[nodiscard]] Side getSideToMove() const;
+
 private:
     /**
      * @brief Convert a PieceWithColor to its corresponding FEN character.
@@ -132,15 +150,6 @@ private:
      * @return The PieceWithColor corresponding to the FEN character.
      */
     [[nodiscard]] static PieceWithColor FENCharacterToPieceWithColor(char fenChar);
-
-    /**
-     * @brief Check if a square is attacked by a given side.
-     *
-     * @param square The square to check for attacks.
-     * @param side The side of the attacker.
-     * @return True if the square is attacked by the given side, false otherwise.
-     */
-    [[nodiscard]] bool isSquareAttacked(Square square, Side side) const;
 
     /**
      * @brief Print all squares attacked by a given side.

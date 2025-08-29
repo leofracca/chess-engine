@@ -28,6 +28,14 @@ private:
      */
     static void parsePosition(std::string_view command, Board& board);
 
+    // FIXME: Is return type bool needed?
+    /**
+     * @brief Parse a move in UCI format and apply it to the board.
+     *
+     * @param moveAsString The move in UCI format (e.g., "e2e4", "e7e8q").
+     * @param board The board to apply the move to.
+     * @return True if the move was successfully applied, false otherwise.
+     */
     static bool parseMove(std::string_view moveAsString, Board& board);
 
     /**

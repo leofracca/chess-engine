@@ -686,4 +686,14 @@ void Board::generatePieceMoves(const PieceWithColor piece, std::vector<Move>& mo
     }
 }
 
+Bitboard Board::getBitboardForPiece(const PieceWithColor piece) const
+{
+    return m_bitboardsPieces[std::to_underlying(piece)];
+}
+
+Side Board::getSideToMove() const
+{
+    return m_sideToMove;
+}
+
 } // namespace chess_engine
