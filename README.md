@@ -7,7 +7,7 @@ git clone https://github.com/leofracca/chess-engine
 cd chess-engine
 mkdir build
 cd build
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
