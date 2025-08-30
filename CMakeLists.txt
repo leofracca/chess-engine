@@ -14,8 +14,15 @@ option(USAN     OFF)
 # Coverage
 option(COVERAGE OFF)
 
-#set(COMPILER_FLAGS -Wall -Wextra -Wpedantic -Werror)
-set(COMPILER_FLAGS -Wall -Wextra -Wpedantic) # -Werror is too strict for now
+# Check if the compiler is GCC or MSVC
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # MSVC
+    set(COMPILER_FLAGS /W4 /permissive-) # /WX is too strict for now
+else ()
+    # GCC/Clang
+    set(COMPILER_FLAGS -Wall -Wextra -Wpedantic) # -Werror is too strict for now
+endif ()
+
 if (COVERAGE OR USAN)
     set(COMPILER_FLAGS ${COMPILER_FLAGS}
             -O0
