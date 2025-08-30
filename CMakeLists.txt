@@ -17,7 +17,7 @@ option(COVERAGE OFF)
 # Check if the compiler is GCC or MSVC
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # MSVC
-    set(COMPILER_FLAGS /W4 /permissive-) # /WX is too strict for now
+    # set(COMPILER_FLAGS /W4 /permissive-) # /WX is too strict for now
 else ()
     # GCC/Clang
     set(COMPILER_FLAGS -Wall -Wextra -Wpedantic) # -Werror is too strict for now
