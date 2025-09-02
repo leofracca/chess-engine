@@ -62,9 +62,9 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
         // Checkmate or stalemate
         // If the side to move has no legal moves, it's either checkmate or stalemate
         // It's possible to differentiate by checking if the king is in check
-        const PieceWithColor king = board.getSideToMove() == White ? BlackKing : WhiteKing;
+        const PieceWithColor king = board.getSideToMove() == White ? WhiteKing : BlackKing;
         const Square kingSquare = board.getBitboardForPiece(king).getSquareOfLeastSignificantBitIndex();
-        if (board.isSquareAttacked(kingSquare, board.getSideToMove()))
+        if (board.isSquareAttacked(kingSquare, board.getSideToMove() == White ? Black : White))
         {
             return negativeInfinity + ply; // Checkmate, return a very low score
         }
