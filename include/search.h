@@ -34,6 +34,19 @@ private:
      */
     [[nodiscard]] static int negamax(int alpha, int beta, Board& board, int depth, int ply = 0);
 
+    /**
+     * @brief Quiescence search to evaluate "quiet" positions.
+     *
+     * This function extends the search in positions where there are potential
+     * captures or checks to avoid the horizon effect. It only considers capture moves.
+     *
+     * @param alpha The alpha value for alpha-beta pruning.
+     * @param beta The beta value for alpha-beta pruning.
+     * @param board The current board position.
+     * @return The evaluation score of the position.
+     */
+    [[nodiscard]] static int quiescence(int alpha, int beta, Board& board);
+
 public:
     static Move s_bestMove; //< The best move found during the search.
 

@@ -15,7 +15,7 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
     // Base case: evaluate the position
     if (depth == 0)
     {
-        return Evaluate::evaluatePosition(board);
+        return quiescence(alpha, beta, board);
     }
 
     Move localBestMove;
@@ -82,4 +82,52 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
 
     return alpha;
 }
+
+int Search::quiescence(int alpha, int beta, Board& board)
+{
+    const int evaluation = Evaluate::evaluatePosition(board);
+
+    if (evaluation >= beta)
+    {
+        return beta;
+    }
+
+    if (alpha < evaluation)
+    {
+        alpha = evaluation;
+    }
+
+    auto moves = board.generateMoves();
+
+    for (const Move move : moves)
+    {
+        // Only consider capture moves in quiescence search
+        if (!move.isCapture())
+        {
+            continue;
+        }
+
+        Board newBoard = board;
+
+        if (const bool isValidMove = newBoard.makeMove(move); !isValidMove)
+        {
+            continue;
+        }
+
+        const int score = -quiescence(-beta, -alpha, newBoard);
+
+        if (score >= beta)
+        {
+            return beta;
+        }
+
+        if (score > alpha)
+        {
+            alpha = score;
+        }
+    }
+
+    return alpha;
+}
+
 } // namespace chess_engine
