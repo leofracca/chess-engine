@@ -6,7 +6,7 @@ int Evaluate::evaluatePosition(const Board& board)
 {
     int score = 0;
 
-    for (const PieceWithColor piece : PieceWithColor())
+    for (const PieceWithColor piece: PieceWithColor())
     {
         Bitboard bitboardPiece = board.getBitboardForPiece(piece);
 

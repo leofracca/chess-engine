@@ -21,9 +21,9 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
     Move localBestMove;
     const int oldAlpha = alpha;
     bool hasLegalMoves = false;
-    auto moves = board.generateMoves();
+    auto moves         = board.generateMoves();
 
-    for (Move move : moves)
+    for (Move move: moves)
     {
         Board newBoard = board;
 
@@ -32,9 +32,9 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
             continue;
         }
 
-        hasLegalMoves = true;
+        hasLegalMoves   = true;
         const int score = -negamax(-beta, -alpha, newBoard, depth - 1, ply + 1);
-        newBoard = board;
+        newBoard        = board;
 
         // Beta-cutoff
         // If the opponent has found a move that is too good for us, prune the branch
@@ -63,7 +63,7 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
         // If the side to move has no legal moves, it's either checkmate or stalemate
         // It's possible to differentiate by checking if the king is in check
         const PieceWithColor king = board.getSideToMove() == White ? WhiteKing : BlackKing;
-        const Square kingSquare = board.getBitboardForPiece(king).getSquareOfLeastSignificantBitIndex();
+        const Square kingSquare   = board.getBitboardForPiece(king).getSquareOfLeastSignificantBitIndex();
         if (board.isSquareAttacked(kingSquare, board.getSideToMove() == White ? Black : White))
         {
             return negativeInfinity + ply; // Checkmate, return a very low score
@@ -99,7 +99,7 @@ int Search::quiescence(int alpha, int beta, Board& board)
 
     auto moves = board.generateMoves();
 
-    for (const Move move : moves)
+    for (const Move move: moves)
     {
         // Only consider capture moves in quiescence search
         if (!move.isCapture())

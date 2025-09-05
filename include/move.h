@@ -42,8 +42,7 @@ public:
      * @param isEnPassant Indicates if the move is an en passant capture (default is false).
      * @param isCastling Indicates if the move is a castling move (default is false).
      */
-    Move(Square source, Square target, PieceWithColor piece, PieceWithColor promotedPiece = InvalidPiece,
-         bool isCapture = false, bool isPawnDoublePush = false, bool isEnPassant = false, bool isCastling = false);
+    Move(Square source, Square target, PieceWithColor piece, PieceWithColor promotedPiece = InvalidPiece, bool isCapture = false, bool isPawnDoublePush = false, bool isEnPassant = false, bool isCastling = false);
 
     /**
      * @brief Get the source square of the move.
@@ -104,13 +103,13 @@ public:
     [[nodiscard]] std::string toString() const;
 
 private:
-    Square m_source;  //< Source square of the move
-    Square m_target;  //< Target square of the move
-    PieceWithColor m_piece; //< Piece being moved
+    Square m_source;                //< Source square of the move
+    Square m_target;                //< Target square of the move
+    PieceWithColor m_piece;         //< Piece being moved
     PieceWithColor m_promotedPiece; //< Piece promoted to, if applicable
-    bool m_isCapture; //< Indicates if the move is a capture
-    bool m_isPawnDoublePush; //< Indicates if the move is a pawn double push
-    bool m_isEnPassant; //< Indicates if the move is an en passant capture
-    bool m_isCastling; //< Indicates if the move is a castling move
+    bool m_isCapture;               //< Indicates if the move is a capture
+    bool m_isPawnDoublePush;        //< Indicates if the move is a pawn double push
+    bool m_isEnPassant;             //< Indicates if the move is an en passant capture
+    bool m_isCastling;              //< Indicates if the move is a castling move
 };
 } // namespace chess_engine

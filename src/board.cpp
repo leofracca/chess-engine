@@ -59,9 +59,9 @@ void Board::print() const
 
 char Board::pieceToFENCharacter(const PieceWithColor piece)
 {
+    // clang-format off
     switch (piece)
     {
-        // clang-format off
         case WhitePawn:      return 'P';
         case WhiteKnight:    return 'N';
         case WhiteBishop:    return 'B';
@@ -75,15 +75,14 @@ char Board::pieceToFENCharacter(const PieceWithColor piece)
         case BlackQueen:     return 'q';
         case BlackKing:      return 'k';
         default:             return '?'; // Invalid piece
-        // clang-format on
     }
+    // clang-format on
 }
 
 PieceWithColor Board::FENCharacterToPieceWithColor(const char fenChar)
 {
     switch (fenChar)
     {
-        // clang-format off
         case 'P': return WhitePawn;
         case 'N': return WhiteKnight;
         case 'B': return WhiteBishop;
@@ -96,8 +95,7 @@ PieceWithColor Board::FENCharacterToPieceWithColor(const char fenChar)
         case 'r': return BlackRook;
         case 'q': return BlackQueen;
         case 'k': return BlackKing;
-        default:  return InvalidPiece;
-        // clang-format on
+        default: return InvalidPiece;
     }
 }
 
@@ -108,11 +106,11 @@ void Board::parseFENString(const std::string_view fenString)
     // Reset the board state
     std::fill(m_bitboardsPieces.begin(), m_bitboardsPieces.end(), 0);
     std::fill(m_occupancies.begin(), m_occupancies.end(), 0);
-    m_sideToMove = White;
-    m_castlingRights = CastlingRights::None;
+    m_sideToMove      = White;
+    m_castlingRights  = CastlingRights::None;
     m_enPassantSquare = Square::INVALID;
-    m_halfMoveClock = 0;
-    m_fullMoveNumber = 0;
+    m_halfMoveClock   = 0;
+    m_fullMoveNumber  = 0;
 
     // Index to track the current position in the FEN string
     size_t index = 0;
@@ -169,12 +167,12 @@ void Board::parseFENString(const std::string_view fenString)
     if (fenString[index] == '-')
     {
         m_enPassantSquare = Square::INVALID; // No en passant square
-        index++; // Skip the '-'
+        index++;                             // Skip the '-'
     }
     else
     {
-        const int file = fenString[index++] - 'a';
-        const int rank = board_dimensions::N_RANKS - (fenString[index++] - '0');
+        const int file    = fenString[index++] - 'a';
+        const int rank    = board_dimensions::N_RANKS - (fenString[index++] - '0');
         m_enPassantSquare = static_cast<Square>(rank * board_dimensions::N_FILES + file);
     }
 
@@ -307,14 +305,14 @@ bool Board::makeMove(const Move& move)
     // Save the current board state before making the move
     const Board boardBeforeMove = *this;
 
-    const Square source = move.getSource();
-    const Square target = move.getTarget();
-    const PieceWithColor piece = move.getPiece();
+    const Square source                = move.getSource();
+    const Square target                = move.getTarget();
+    const PieceWithColor piece         = move.getPiece();
     const PieceWithColor promotedPiece = move.getPromotedPiece();
-    const bool isCapture = move.isCapture();
-    const bool isPawnDoublePush = move.isPawnDoublePush();
-    const bool isEnPassant = move.isEnPassant();
-    const bool isCastling = move.isCastling();
+    const bool isCapture               = move.isCapture();
+    const bool isPawnDoublePush        = move.isPawnDoublePush();
+    const bool isEnPassant             = move.isEnPassant();
+    const bool isCastling              = move.isCastling();
 
     // Move the piece
     m_bitboardsPieces[std::to_underlying(piece)].clearBit(source);
@@ -348,7 +346,7 @@ bool Board::makeMove(const Move& move)
     if (isEnPassant)
     {
         // Remove the captured pawn from the bitboard
-        const PieceWithColor pawn = m_sideToMove == White ? BlackPawn : WhitePawn;
+        const PieceWithColor pawn       = m_sideToMove == White ? BlackPawn : WhitePawn;
         const Square capturedPawnSquare = m_sideToMove == White ? target + 8 : target - 8;
         m_bitboardsPieces[std::to_underlying(pawn)].clearBit(capturedPawnSquare);
     }
@@ -421,7 +419,7 @@ bool Board::makeMove(const Move& move)
 
     // Check if king is in check after the move
     const PieceWithColor king = m_sideToMove == White ? BlackKing : WhiteKing;
-    const Square kingSquare = m_bitboardsPieces[std::to_underlying(king)].getSquareOfLeastSignificantBitIndex();
+    const Square kingSquare   = m_bitboardsPieces[std::to_underlying(king)].getSquareOfLeastSignificantBitIndex();
     if (isSquareAttacked(kingSquare, m_sideToMove))
     {
         // If the king is in check, revert the move
@@ -442,7 +440,7 @@ void Board::generatePawnMoves(const PieceWithColor piece, std::vector<Move>& mov
     while (bitboardPiece != emptyBitboard)
     {
         const Square source = bitboardPiece.getSquareOfLeastSignificantBitIndex();
-        Square target = source + offset; // Move one square forward
+        Square target       = source + offset; // Move one square forward
 
         const bool isPromotion = (piece == WhitePawn && source >= Square::a7 && source <= Square::h7) ||
                                  (piece == BlackPawn && source >= Square::a2 && source <= Square::h2);
@@ -615,7 +613,7 @@ void Board::generateKingCastlingMoves(PieceWithColor piece, std::vector<Move>& m
 
 void Board::generatePieceMoves(const PieceWithColor piece, std::vector<Move>& moves) const
 {
-    const Side side = piece >= WhitePawn && piece <= WhiteKing ? White : Black;
+    const Side side         = piece >= WhitePawn && piece <= WhiteKing ? White : Black;
     const Side opponentSide = side == White ? Black : White;
     constexpr Bitboard emptyBitboard;
     Bitboard bitboardPiece = m_bitboardsPieces[std::to_underlying(piece)];

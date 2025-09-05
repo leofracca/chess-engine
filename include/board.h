@@ -20,10 +20,10 @@ namespace chess_engine
 enum class CastlingRights : int
 {
     WhiteShort = 1 << 0, // White can castle kingside
-    WhiteLong = 1 << 1,  // White can castle queenside
+    WhiteLong  = 1 << 1, // White can castle queenside
     BlackShort = 1 << 2, // Black can castle kingside
-    BlackLong = 1 << 3,  // Black can castle queenside
-    None = 0             // No castling rights
+    BlackLong  = 1 << 3, // Black can castle queenside
+    None       = 0       // No castling rights
 };
 
 /**
@@ -194,29 +194,28 @@ private:
 
 private:
     static constexpr int N_ALL_PIECES = 12; //< 6 pieces for each side
-    static constexpr int N_SIDES = 3; //< White, Black, and both sides combined
+    static constexpr int N_SIDES      = 3;  //< White, Black, and both sides combined
 
     std::array<Bitboard, N_ALL_PIECES> m_bitboardsPieces; //< Bitboards for each piece type
-    std::array<Bitboard, N_SIDES> m_occupancies; //< Occupancies for each side
+    std::array<Bitboard, N_SIDES> m_occupancies;          //< Occupancies for each side
 
-    Side m_sideToMove; //< Side to move
+    Side m_sideToMove;               //< Side to move
     CastlingRights m_castlingRights; //< Castling rights for both sides
-    Square m_enPassantSquare; //< En passant square, if any
-    int m_halfMoveClock; //< Half-move clock for the fifty-move rule
-    int m_fullMoveNumber; //< Full move number
+    Square m_enPassantSquare;        //< En passant square, if any
+    int m_halfMoveClock;             //< Half-move clock for the fifty-move rule
+    int m_fullMoveNumber;            //< Full move number
 
 public:
     /// String representations of squares
     static constexpr std::array<std::string_view, board_dimensions::N_SQUARES> s_squares = {
-        "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
-        "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
-        "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
-        "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
-        "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
-        "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
-        "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
-        "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"
-    };
+            "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
+            "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+            "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+            "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+            "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+            "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+            "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+            "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"};
 
     static constexpr std::string_view s_startingFENString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; //< Standard starting position in FEN notation
 };

@@ -15,20 +15,20 @@
 // Note: Can be computed at compile time?
 namespace chess_engine::pregenerated_moves
 {
-inline std::array<Bitboard, 64> whitePawnsAttacks; //< Precomputed pawn attacks for white pawns
-inline std::array<Bitboard, 64> blackPawnsAttacks; //< Precomputed pawn attacks for black pawns
-inline std::array<Bitboard, 64> knightAttacks; //< Precomputed knight attacks
-inline std::array<Bitboard, 64> kingAttacks; //< Precomputed king attacks
+inline std::array<Bitboard, 64> whitePawnsAttacks;              //< Precomputed pawn attacks for white pawns
+inline std::array<Bitboard, 64> blackPawnsAttacks;              //< Precomputed pawn attacks for black pawns
+inline std::array<Bitboard, 64> knightAttacks;                  //< Precomputed knight attacks
+inline std::array<Bitboard, 64> kingAttacks;                    //< Precomputed king attacks
 inline std::array<std::array<Bitboard, 512>, 64> bishopAttacks; //< Precomputed bishop attacks ([square][occupancy])
-inline std::array<std::array<Bitboard, 4096>, 64> rookAttacks; //< Precomputed rook attacks ([square][occupancy])
+inline std::array<std::array<Bitboard, 4096>, 64> rookAttacks;  //< Precomputed rook attacks ([square][occupancy])
 
 inline std::array<Bitboard, 64> bishopAttacksMasks; //< Precomputed bishop attack masks
-inline std::array<Bitboard, 64> rookAttacksMasks; //< Precomputed rook attack masks
+inline std::array<Bitboard, 64> rookAttacksMasks;   //< Precomputed rook attack masks
 
-static constexpr Bitboard NOT_A_FILE{18374403900871474942ULL}; //< All squares set to 1 except the 'a' file
-static constexpr Bitboard NOT_H_FILE{9187201950435737471ULL}; //< All squares set to 1 except the 'h' file
+static constexpr Bitboard NOT_A_FILE{18374403900871474942ULL};  //< All squares set to 1 except the 'a' file
+static constexpr Bitboard NOT_H_FILE{9187201950435737471ULL};   //< All squares set to 1 except the 'h' file
 static constexpr Bitboard NOT_AB_FILE{18229723555195321596ULL}; //< All squares set to 1 except the 'a' and 'b' files
-static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares set to 1 except the 'h' and 'g' files
+static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL};  //< All squares set to 1 except the 'h' and 'g' files
 
 /**
  * @brief Generates pawn attacks for a given side and square.
@@ -68,16 +68,16 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
     Bitboard attacks;
 
     // Upward attacks
-    attacks |= (bitboard >> 17) & NOT_H_FILE; // Attack 2 squares up and 1 square left
-    attacks |= (bitboard >> 15) & NOT_A_FILE; // Attack 2 squares up and 1 square right
+    attacks |= (bitboard >> 17) & NOT_H_FILE;  // Attack 2 squares up and 1 square left
+    attacks |= (bitboard >> 15) & NOT_A_FILE;  // Attack 2 squares up and 1 square right
     attacks |= (bitboard >> 10) & NOT_GH_FILE; // Attack 1 square up and 2 squares left
-    attacks |= (bitboard >> 6) & NOT_AB_FILE; // Attack 1 square up and 2 squares right
+    attacks |= (bitboard >> 6) & NOT_AB_FILE;  // Attack 1 square up and 2 squares right
 
     // Downward attacks
-    attacks |= (bitboard << 17) & NOT_A_FILE; // Attack 2 squares down and 1 square right
-    attacks |= (bitboard << 15) & NOT_H_FILE; // Attack 2 squares down and 1 square left
+    attacks |= (bitboard << 17) & NOT_A_FILE;  // Attack 2 squares down and 1 square right
+    attacks |= (bitboard << 15) & NOT_H_FILE;  // Attack 2 squares down and 1 square left
     attacks |= (bitboard << 10) & NOT_AB_FILE; // Attack 1 square down and 2 squares right
-    attacks |= (bitboard << 6) & NOT_GH_FILE; // Attack 1 square down and 2 squares left
+    attacks |= (bitboard << 6) & NOT_GH_FILE;  // Attack 1 square down and 2 squares left
 
     return attacks;
 }
@@ -94,12 +94,12 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
     Bitboard attacks;
 
     // Upward attacks
-    attacks |= (bitboard >> 8); // Attack 1 square up
+    attacks |= (bitboard >> 8);              // Attack 1 square up
     attacks |= (bitboard >> 7) & NOT_A_FILE; // Attack 1 square up and left
     attacks |= (bitboard >> 9) & NOT_H_FILE; // Attack 1 square up and right
 
     // Downward attacks
-    attacks |= (bitboard << 8); // Attack 1 square down
+    attacks |= (bitboard << 8);              // Attack 1 square down
     attacks |= (bitboard << 7) & NOT_H_FILE; // Attack 1 square down and right
     attacks |= (bitboard << 9) & NOT_A_FILE; // Attack 1 square down and left
 
@@ -121,7 +121,7 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
 {
     // Knight attacks do not depend on occupancy, so we can return the precomputed attacks directly
     // The occupancy parameter is included for consistency with other piece attack functions
-    (void)occupancy; // Avoid unused parameter warning
+    (void) occupancy; // Avoid unused parameter warning
 
     // Knight attacks are precomputed for each square
     return knightAttacks[std::to_underlying(square)];
@@ -187,7 +187,7 @@ static constexpr Bitboard NOT_GH_FILE{4557430888798830399ULL}; //< All squares s
 {
     // King attacks do not depend on occupancy, so we can return the precomputed attacks directly
     // The occupancy parameter is included for consistency with other piece attack functions
-    (void)occupancy; // Avoid unused parameter warning
+    (void) occupancy; // Avoid unused parameter warning
 
     // King attacks are precomputed for each square
     return kingAttacks[std::to_underlying(square)];
@@ -202,8 +202,8 @@ constexpr void initLeaperAttacks()
     {
         whitePawnsAttacks[i] = generatePawnAttacks(White, static_cast<Square>(i));
         blackPawnsAttacks[i] = generatePawnAttacks(Black, static_cast<Square>(i));
-        knightAttacks[i] = generateKnightAttacks(static_cast<Square>(i));
-        kingAttacks[i] = generateKingAttacks(static_cast<Square>(i));
+        knightAttacks[i]     = generateKnightAttacks(static_cast<Square>(i));
+        kingAttacks[i]       = generateKingAttacks(static_cast<Square>(i));
     }
 }
 
@@ -233,7 +233,7 @@ constexpr void initSlider(
 
         // Determine the number of relevant occupancy bits for the given square and piece
         // (how many different blocker configurations can exist for this square)
-        const int relevantBits = relevantBitsArray[static_cast<int>(square)];
+        const int relevantBits     = relevantBitsArray[static_cast<int>(square)];
         const int totalOccupancies = 1 << relevantBits;
 
         for (int index = 0; index < totalOccupancies; index++)
@@ -241,7 +241,7 @@ constexpr void initSlider(
             // Determine the number of relevant occupancy bits for the given square and piece
             // (how many different blocker configurations can exist for this square)
             Bitboard occupancy = slider_utils::generateOccupancyMask(index, attackMasks[static_cast<int>(square)]);
-            int magicIndex = (occupancy.getBitboard() * magicNumbers[static_cast<int>(square)].getBitboard()) >> (64 - relevantBits);
+            int magicIndex     = (occupancy.getBitboard() * magicNumbers[static_cast<int>(square)].getBitboard()) >> (64 - relevantBits);
             // Save the set of squares that can be attacked given a specific blocker configuration for the square
             attacks[static_cast<int>(square)][magicIndex] = generateAttacksOnTheFly(square, occupancy);
         }

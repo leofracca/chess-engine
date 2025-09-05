@@ -53,7 +53,7 @@ void UCIConnection::parsePosition(const std::string_view command, Board& board)
     // position [fen <fenstring> | startpos ] moves <move1> .... <movei>
 
     constexpr std::string_view prefix = "position ";
-    size_t index = prefix.size();
+    size_t index                      = prefix.size();
 
     if (command.contains("startpos"))
     {
@@ -115,8 +115,8 @@ void UCIConnection::parseGo(const std::string_view command, Board& board)
     // See https://official-stockfish.github.io/docs/stockfish-wiki/UCI-&-Commands.html#go for all options
 
     constexpr std::string_view prefix = "go ";
-    constexpr size_t index = prefix.size();
-    int depth = 0;
+    constexpr size_t index            = prefix.size();
+    int depth                         = 0;
 
     if (command.find("depth") != std::string_view::npos)
     {

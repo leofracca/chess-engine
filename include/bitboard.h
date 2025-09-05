@@ -275,13 +275,13 @@ public:
      */
     [[nodiscard]] constexpr int getNumberOfBitsSet() const
     {
-        int count = 0;
+        int count     = 0;
         uint64_t temp = m_bitboard;
 
         while (temp > 0)
         {
             count += temp & 1; // Increment count if the least significant bit is set
-            temp >>= 1; // Shift right to check the next bit
+            temp >>= 1;        // Shift right to check the next bit
         }
 
         return count;

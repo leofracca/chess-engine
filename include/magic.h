@@ -35,7 +35,7 @@ public:
         for (Square square = Square::a8; square <= Square::h1; square++)
         {
             m_bishopMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Bishop);
-            m_rookMagicNumbersNotPrecomputed[static_cast<int>(square)] = generateMagicNumber(square, Rook);
+            m_rookMagicNumbersNotPrecomputed[static_cast<int>(square)]   = generateMagicNumber(square, Rook);
         }
     }
 
@@ -55,10 +55,10 @@ private:
         std::uniform_int_distribution<uint64_t> dist(0, UINT64_MAX);
 
         // Generate four random 16-bit numbers and combine them into a 64-bit number
-        const uint64_t random1 = dist(gen) & 0xFFFF;
-        const uint64_t random2 = dist(gen) & 0xFFFF;
-        const uint64_t random3 = dist(gen) & 0xFFFF;
-        const uint64_t random4 = dist(gen) & 0xFFFF;
+        const uint64_t random1     = dist(gen) & 0xFFFF;
+        const uint64_t random2     = dist(gen) & 0xFFFF;
+        const uint64_t random3     = dist(gen) & 0xFFFF;
+        const uint64_t random4     = dist(gen) & 0xFFFF;
         const uint64_t random64bit = (random1 << 48) | (random2 << 32) | (random3 << 16) | random4;
 
         return random64bit;
@@ -96,9 +96,9 @@ private:
         //               "Magic numbers can only be generated for Rooks and Bishops.");
 
         // Determine the number of relevant occupancy bits for the given square and piece
-        const int relevantBits = piece == Bishop
-                                         ? slider_utils::BISHOP_RELEVANT_BITS[static_cast<int>(square)]
-                                         : slider_utils::ROOK_RELEVANT_BITS[static_cast<int>(square)];
+        const int relevantBits     = piece == Bishop
+                                             ? slider_utils::BISHOP_RELEVANT_BITS[static_cast<int>(square)]
+                                             : slider_utils::ROOK_RELEVANT_BITS[static_cast<int>(square)];
         const int totalOccupancies = 1 << relevantBits;
 
         // Generate the attack mask for the square and piece
@@ -108,16 +108,16 @@ private:
 
         // Allocate arrays for all possible occupancies, their attacks, and used attack sets
         auto occupancies = std::make_unique<Bitboard[]>(totalOccupancies);
-        auto attacks = std::make_unique<Bitboard[]>(totalOccupancies);
+        auto attacks     = std::make_unique<Bitboard[]>(totalOccupancies);
         auto usedAttacks = std::make_unique<Bitboard[]>(totalOccupancies);
 
         // Generate all possible occupancies and their corresponding attack sets
         for (int index = 0; index < totalOccupancies; index++)
         {
             occupancies[index] = slider_utils::generateOccupancyMask(index, attackMask);
-            attacks[index] = piece == Bishop
-                                     ? slider_utils::generateBishopAttacksOnTheFly(square, occupancies[index])
-                                     : slider_utils::generateRookAttacksOnTheFly(square, occupancies[index]);
+            attacks[index]     = piece == Bishop
+                                         ? slider_utils::generateBishopAttacksOnTheFly(square, occupancies[index])
+                                         : slider_utils::generateRookAttacksOnTheFly(square, occupancies[index]);
         }
 
         // Brute-force search for a suitable magic number
@@ -138,7 +138,7 @@ private:
             for (int index = 0; index < totalOccupancies; index++)
             {
                 const Bitboard occupancy = occupancies[index];
-                const Bitboard attack = attacks[index];
+                const Bitboard attack    = attacks[index];
 
                 // Compute the magic index for this occupancy
                 const int magicIndex = (occupancy.getBitboard() * magicNumber) >> (64 - relevantBits);
