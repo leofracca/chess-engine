@@ -72,6 +72,10 @@ target_compile_options(chess_engine
         PRIVATE $<$<BOOL:${COVERAGE}>:--coverage>
 )
 
+target_compile_definitions(chess_engine_lib
+        PRIVATE "$<$<CONFIG:Debug>:DEBUG_BUILD>"
+)
+
 target_link_options(chess_engine_lib
         PRIVATE ${LINKER_FLAGS}
 )

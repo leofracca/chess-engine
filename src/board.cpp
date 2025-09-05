@@ -1,6 +1,5 @@
-#include <print>
-
 #include "board.h"
+#include "debug.h"
 #include "pregenerated_moves.h"
 
 namespace chess_engine
@@ -20,7 +19,7 @@ void Board::print() const
 {
     for (int rank = 0; rank < board_dimensions::N_RANKS; rank++)
     {
-        std::print("{} ", board_dimensions::N_RANKS - rank); // Print rank number on the left side
+        debug::debug_log("{} ", board_dimensions::N_RANKS - rank); // Print rank number on the left side
 
         for (int file = 0; file < board_dimensions::N_FILES; file++)
         {
@@ -31,7 +30,7 @@ void Board::print() const
             {
                 if (m_bitboardsPieces[std::to_underlying(piece)].getBit(square) == 1)
                 {
-                    std::print(" {}", pieceToFENCharacter(piece));
+                    debug::debug_log(" {}", pieceToFENCharacter(piece));
                     isSquareOccupied = true;
                     break;
                 }
@@ -39,24 +38,24 @@ void Board::print() const
 
             if (!isSquareOccupied)
             {
-                std::print(" .");
+                debug::debug_log(" .");
             }
         }
-        std::println();
+        debug::debug_log("\n");
     }
-    std::println("   a b c d e f g h\n"); // Print file letters at the bottom of the board
+    debug::debug_log("   a b c d e f g h\n\n"); // Print file letters at the bottom of the board
 
-    std::println("Side to move: {}", m_sideToMove == White ? "White" : "Black");
-    std::println("Castling rights: {}{}{}{}",
-                  (m_castlingRights & CastlingRights::WhiteShort ? "K" : ""),
-                  (m_castlingRights & CastlingRights::WhiteLong ? "Q" : ""),
-                  (m_castlingRights & CastlingRights::BlackShort ? "k" : ""),
-                  (m_castlingRights & CastlingRights::BlackLong ? "q" : ""));
-    std::println("En passant square: {}", m_enPassantSquare == Square::INVALID ? "None" : s_squares[std::to_underlying(m_enPassantSquare)]);
-    std::println("Half-move clock: {}", m_halfMoveClock);
-    std::println("Full-move number: {}", m_fullMoveNumber);
+    debug::debug_log("Side to move: {}\n", m_sideToMove == White ? "White" : "Black");
+    debug::debug_log("Castling rights: {}{}{}{}\n",
+                     (m_castlingRights & CastlingRights::WhiteShort ? "K" : ""),
+                     (m_castlingRights & CastlingRights::WhiteLong ? "Q" : ""),
+                     (m_castlingRights & CastlingRights::BlackShort ? "k" : ""),
+                     (m_castlingRights & CastlingRights::BlackLong ? "q" : ""));
+    debug::debug_log("En passant square: {}\n", m_enPassantSquare == Square::INVALID ? "None" : s_squares[std::to_underlying(m_enPassantSquare)]);
+    debug::debug_log("Half-move clock: {}\n", m_halfMoveClock);
+    debug::debug_log("Full-move number: {}\n", m_fullMoveNumber);
 
-    std::println("+++++++++++++++++++++++++++++");
+    debug::debug_log("+++++++++++++++++++++++++++++\n");
 }
 
 char Board::pieceToFENCharacter(const PieceWithColor piece)
@@ -256,9 +255,9 @@ void Board::printAttackedSquares(const Side side) const
         for (int file = 0; file < board_dimensions::N_FILES; file++)
         {
             const auto square = static_cast<Square>(rank * board_dimensions::N_FILES + file);
-            std::print("{}", isSquareAttacked(square, side) ? 1 : 0);
+            debug::debug_log("{}", isSquareAttacked(square, side) ? 1 : 0);
         }
-        std::println();
+        debug::debug_log("\n");
     }
 }
 

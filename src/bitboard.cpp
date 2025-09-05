@@ -1,6 +1,5 @@
 #include "bitboard.h"
-
-#include <print>
+#include "debug.h"
 
 namespace chess_engine
 {
@@ -13,21 +12,21 @@ void Bitboard::print() const
             // Print the rank number on the left side of the board
             if (file == 0)
             {
-                std::print("{} ", board_dimensions::N_RANKS - rank);
+                debug::debug_log("{} ", board_dimensions::N_RANKS - rank);
             }
 
             // Calculate the square index based on rank and file
             const auto square = static_cast<Square>(rank * board_dimensions::N_FILES + file);
-            std::print("{} ", getBit(square));
+            debug::debug_log("{} ", getBit(square));
         }
-        std::println();
+        debug::debug_log("\n");
     }
 
     // Print the file letters at the bottom of the board
-    std::println("  a b c d e f g h");
+    debug::debug_log("  a b c d e f g h\n");
 
     // Print the current bitboard value (useful for debugging)
-    std::println("Current bitboard: {}", m_bitboard);
+    debug::debug_log("Current bitboard: {}\n", m_bitboard);
 }
 
 uint64_t Bitboard::getBitboard() const
