@@ -10,6 +10,8 @@
 #include <cstdint>
 #include <utility>
 
+#include "debug.h"
+
 namespace chess_engine
 {
 namespace board_dimensions

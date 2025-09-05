@@ -1,5 +1,4 @@
 #include "board.h"
-#include "debug.h"
 #include "pregenerated_moves.h"
 
 namespace chess_engine

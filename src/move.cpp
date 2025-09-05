@@ -1,6 +1,5 @@
-#include "move.h"
-
 #include "board.h"
+#include "move.h"
 
 namespace chess_engine
 {

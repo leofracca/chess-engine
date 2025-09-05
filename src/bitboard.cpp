@@ -1,5 +1,4 @@
 #include "bitboard.h"
-#include "debug.h"
 
 namespace chess_engine
 {
