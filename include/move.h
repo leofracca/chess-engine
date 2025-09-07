@@ -129,6 +129,13 @@ public:
      */
     [[nodiscard]] std::string toString() const;
 
+    /**
+     * @brief Calculate a score for the move based on its characteristics.
+     *
+     * @return The calculated score for the move.
+     */
+    [[nodiscard]] int calculateScore() const;
+
 private:
     Square m_source;                //< Source square of the move
     Square m_target;                //< Target square of the move

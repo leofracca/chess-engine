@@ -113,4 +113,29 @@ std::string Move::toString() const
     return result;
 }
 
+int Move::calculateScore() const
+{
+    int score = 0;
+
+    // Captures are prioritized
+    // Use MVV-LVA (Most Valuable Victim - Least Valuable Attacker) heuristic
+    if (m_isCapture)
+    {
+        score += 1000 + 10 * std::to_underlying(m_capturedPiece) - (std::to_underlying(m_piece) % 6);
+    }
+
+    // Promotions are prioritized
+    if (m_promotedPiece != InvalidPiece)
+    {
+        score += 800 + std::to_underlying(m_promotedPiece);
+    }
+
+    // Castling is prioritized
+    if (m_isCastling)
+    {
+        score += 500;
+    }
+
+    return score;
+}
 } // namespace chess_engine

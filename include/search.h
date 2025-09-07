@@ -53,14 +53,6 @@ private:
      */
     static void sortMoves(std::vector<Move>& moves);
 
-    /** @brief Compare two moves based on their scores.
-     *
-     * @param a The first move to compare.
-     * @param b The second move to compare.
-     * @return A negative value if a has a higher score than b, a positive value if b has a higher score than a, or zero if they have equal scores.
-     */
-    static bool compareMoves(const Move& a, const Move& b);
-
 public:
     static Move s_bestMove; //< The best move found during the search.
 
