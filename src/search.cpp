@@ -23,6 +23,8 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
     bool hasLegalMoves = false;
     auto moves         = board.generateMoves();
 
+    sortMoves(moves);
+
     for (Move move: moves)
     {
         Board newBoard = board;
@@ -98,6 +100,7 @@ int Search::quiescence(int alpha, int beta, Board& board)
     }
 
     auto moves = board.generateMoves();
+    sortMoves(moves);
 
     for (const Move move: moves)
     {
@@ -128,6 +131,52 @@ int Search::quiescence(int alpha, int beta, Board& board)
     }
 
     return alpha;
+}
+
+void Search::sortMoves(std::vector<Move>& moves)
+{
+    // Sort the moves based on their score
+    std::sort(moves.begin(), moves.end(), [](const Move& a, const Move& b) {
+        return compareMoves(a, b);
+    });
+}
+
+bool Search::compareMoves(const Move& a, const Move& b)
+{
+    int scoreA = 0, scoreB = 0;
+
+    // Captures are prioritized
+    // Use MVV-LVA (Most Valuable Victim - Least Valuable Attacker) heuristic
+    if (a.isCapture())
+    {
+        scoreA += 1000 + 10 * std::to_underlying(a.getCapturedPiece()) - (std::to_underlying(a.getPiece()) % 6);
+    }
+    if (b.isCapture())
+    {
+        scoreB += 1000 + 10 * std::to_underlying(b.getCapturedPiece()) - (std::to_underlying(b.getPiece()) % 6);
+    }
+
+    // Promotions are prioritized
+    if (a.getPromotedPiece() != InvalidPiece)
+    {
+        scoreA += 800 + std::to_underlying(a.getPromotedPiece());
+    }
+    if (b.getPromotedPiece() != InvalidPiece)
+    {
+        scoreB += 800 + std::to_underlying(b.getPromotedPiece());
+    }
+
+    // Castling is prioritized
+    if (a.isCastling())
+    {
+        scoreA += 500;
+    }
+    if (b.isCastling())
+    {
+        scoreB += 500;
+    }
+
+    return scoreA > scoreB;
 }
 
 } // namespace chess_engine

@@ -493,29 +493,30 @@ void Board::generatePawnMoves(const PieceWithColor piece, std::vector<Move>& mov
         while (attacks != emptyBitboard)
         {
             target = attacks.getSquareOfLeastSignificantBitIndex();
+            Piece capturedPiece = getOpponentCapturedPiece(target);
 
             // Capture and promotion
             if (isPromotion)
             {
                 if (piece == WhitePawn)
                 {
-                    moves.emplace_back(source, target, piece, WhiteKnight, true, false, false, false);
-                    moves.emplace_back(source, target, piece, WhiteBishop, true, false, false, false);
-                    moves.emplace_back(source, target, piece, WhiteRook, true, false, false, false);
-                    moves.emplace_back(source, target, piece, WhiteQueen, true, false, false, false);
+                    moves.emplace_back(source, target, piece, WhiteKnight, capturedPiece, true, false, false, false);
+                    moves.emplace_back(source, target, piece, WhiteBishop, capturedPiece, true, false, false, false);
+                    moves.emplace_back(source, target, piece, WhiteRook, capturedPiece, true, false, false, false);
+                    moves.emplace_back(source, target, piece, WhiteQueen, capturedPiece, true, false, false, false);
                 }
                 else
                 {
-                    moves.emplace_back(source, target, piece, BlackKnight, true, false, false, false);
-                    moves.emplace_back(source, target, piece, BlackBishop, true, false, false, false);
-                    moves.emplace_back(source, target, piece, BlackRook, true, false, false, false);
-                    moves.emplace_back(source, target, piece, BlackQueen, true, false, false, false);
+                    moves.emplace_back(source, target, piece, BlackKnight, capturedPiece, true, false, false, false);
+                    moves.emplace_back(source, target, piece, BlackBishop, capturedPiece, true, false, false, false);
+                    moves.emplace_back(source, target, piece, BlackRook, capturedPiece, true, false, false, false);
+                    moves.emplace_back(source, target, piece, BlackQueen, capturedPiece, true, false, false, false);
                 }
             }
             // Normal capture
             else
             {
-                moves.emplace_back(source, target, piece, InvalidPiece, true, false, false, false);
+                moves.emplace_back(source, target, piece, InvalidPiece, capturedPiece, true, false, false, false);
             }
 
             attacks.clearBit(target);
@@ -537,7 +538,7 @@ void Board::generatePawnMoves(const PieceWithColor piece, std::vector<Move>& mov
             if (enPassantBitboard != emptyBitboard)
             {
                 // If the target square is the en passant square, capture the pawn
-                moves.emplace_back(source, m_enPassantSquare, piece, InvalidPiece, true, false, true, false);
+                moves.emplace_back(source, m_enPassantSquare, piece, InvalidPiece, Pawn, true, false, true, false);
             }
         }
 
@@ -653,7 +654,6 @@ void Board::generatePieceMoves(const PieceWithColor piece, std::vector<Move>& mo
             return; // Invalid piece
     }
 
-
     while (bitboardPiece != emptyBitboard)
     {
         const Square source = bitboardPiece.getSquareOfLeastSignificantBitIndex();
@@ -672,7 +672,8 @@ void Board::generatePieceMoves(const PieceWithColor piece, std::vector<Move>& mo
             // Capture move
             else
             {
-                moves.emplace_back(source, target, piece, InvalidPiece, true, false, false, false);
+                Piece capturedPiece = getOpponentCapturedPiece(target);
+                moves.emplace_back(source, target, piece, InvalidPiece, capturedPiece, true, false, false, false);
             }
 
             attacks.clearBit(target);
@@ -680,6 +681,23 @@ void Board::generatePieceMoves(const PieceWithColor piece, std::vector<Move>& mo
 
         bitboardPiece.clearBit(source);
     }
+}
+
+Piece Board::getOpponentCapturedPiece(const Square target) const
+{
+    // Loop over the pieces of the opponent to find the captured piece
+    const PieceWithColor pawn = m_sideToMove == White ? BlackPawn : WhitePawn;
+    const PieceWithColor king = m_sideToMove == White ? BlackKing : WhiteKing;
+
+    for (PieceWithColor p = pawn; p <= king; ++p)
+    {
+        if (m_bitboardsPieces[std::to_underlying(p)].getBit(target) == 1)
+        {
+            return pieceFromPieceWithColor(p);
+        }
+    }
+
+    return Pawn;
 }
 
 Bitboard Board::getBitboardForPiece(const PieceWithColor piece) const

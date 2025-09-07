@@ -54,6 +54,33 @@ enum class PieceWithColor : int
     InvalidPiece
 };
 
+inline Piece pieceFromPieceWithColor(const PieceWithColor pieceWithColor)
+{
+    switch (pieceWithColor)
+    {
+        case PieceWithColor::WhitePawn:
+        case PieceWithColor::BlackPawn:
+            return Piece::Pawn;
+        case PieceWithColor::WhiteKnight:
+        case PieceWithColor::BlackKnight:
+            return Piece::Knight;
+        case PieceWithColor::WhiteBishop:
+        case PieceWithColor::BlackBishop:
+            return Piece::Bishop;
+        case PieceWithColor::WhiteRook:
+        case PieceWithColor::BlackRook:
+            return Piece::Rook;
+        case PieceWithColor::WhiteQueen:
+        case PieceWithColor::BlackQueen:
+            return Piece::Queen;
+        case PieceWithColor::WhiteKing:
+        case PieceWithColor::BlackKing:
+            return Piece::King;
+        default:
+            return Piece::Pawn;
+    }
+}
+
 using enum Side;
 using enum Piece;
 using enum PieceWithColor;

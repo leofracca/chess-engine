@@ -37,8 +37,8 @@ private:
     /**
      * @brief Quiescence search to evaluate "quiet" positions.
      *
-     * This function extends the search in positions where there are potential
-     * captures or checks to avoid the horizon effect. It only considers capture moves.
+     * Extend the search in positions where there are potential captures
+     * or checks to avoid the horizon effect. It only considers capture moves.
      *
      * @param alpha The alpha value for alpha-beta pruning.
      * @param beta The beta value for alpha-beta pruning.
@@ -46,6 +46,20 @@ private:
      * @return The evaluation score of the position.
      */
     [[nodiscard]] static int quiescence(int alpha, int beta, Board& board);
+
+    /** @brief Sort moves based on their scores to improve search efficiency.
+     *
+     * @param moves The list of moves to sort.
+     */
+    static void sortMoves(std::vector<Move>& moves);
+
+    /** @brief Compare two moves based on their scores.
+     *
+     * @param a The first move to compare.
+     * @param b The second move to compare.
+     * @return A negative value if a has a higher score than b, a positive value if b has a higher score than a, or zero if they have equal scores.
+     */
+    static bool compareMoves(const Move& a, const Move& b);
 
 public:
     static Move s_bestMove; //< The best move found during the search.

@@ -29,7 +29,7 @@ public:
      */
     [[nodiscard]] static int evaluatePosition(const Board& board);
 
-private:
+public:
     // clang-format off
     //< Piece values in centipawns
     static constexpr std::array<int , 12> s_piecesValues =
@@ -48,6 +48,7 @@ private:
         -20000      // Black King
     };
 
+private:
     //< Pawn square table
     static constexpr std::array<int, 64> s_pawnTable =
     {

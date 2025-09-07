@@ -192,6 +192,14 @@ private:
      */
     inline void generatePieceMoves(PieceWithColor piece, std::vector<Move>& moves) const;
 
+    /**
+     * @brief Get the piece that was captured by the opponent on a given square.
+     *
+     * @param target The target square to check for an opponent's captured piece.
+     * @return The captured piece, or Piece::Pawn if no capture occurred.
+     */
+    [[nodiscard]] inline Piece getOpponentCapturedPiece(Square target) const;
+
 private:
     static constexpr int N_ALL_PIECES = 12; //< 6 pieces for each side
     static constexpr int N_SIDES      = 3;  //< White, Black, and both sides combined

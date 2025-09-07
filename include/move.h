@@ -37,6 +37,21 @@ public:
      * @param target The target square of the move.
      * @param piece The piece being moved.
      * @param promotedPiece The piece promoted to, if applicable (default is InvalidPiece).
+     * @param capturedPiece The piece that was captured (default is Pawn).
+     * @param isCapture Indicates if the move is a capture (default is false).
+     * @param isPawnDoublePush Indicates if the move is a pawn double push (default is false).
+     * @param isEnPassant Indicates if the move is an en passant capture (default is false).
+     * @param isCastling Indicates if the move is a castling move (default is false).
+     */
+    Move(Square source, Square target, PieceWithColor piece, PieceWithColor promotedPiece = InvalidPiece, Piece capturedPiece = Pawn, bool isCapture = false, bool isPawnDoublePush = false, bool isEnPassant = false, bool isCastling = false);
+
+    /**
+     * @brief Constructs a move with the specified parameters.
+     *
+     * @param source The source square of the move.
+     * @param target The target square of the move.
+     * @param piece The piece being moved.
+     * @param promotedPiece The piece promoted to, if applicable (default is InvalidPiece).
      * @param isCapture Indicates if the move is a capture (default is false).
      * @param isPawnDoublePush Indicates if the move is a pawn double push (default is false).
      * @param isEnPassant Indicates if the move is an en passant capture (default is false).
@@ -73,6 +88,13 @@ public:
     [[nodiscard]] PieceWithColor getPromotedPiece() const;
 
     /**
+     * @brief Get the piece that was captured.
+     *
+     * @return The captured piece, or Pawn if no capture occurred.
+     */
+    [[nodiscard]] Piece getCapturedPiece() const;
+
+    /**
      * @brief Check if the move is a capture.
      *
      * @return True if the move is a capture, false otherwise.
@@ -100,6 +122,11 @@ public:
      */
     [[nodiscard]] bool isCastling() const;
 
+    /**
+     * @brief Convert the move to a string in UCI format.
+     *
+     * @return The move as a string in UCI format.
+     */
     [[nodiscard]] std::string toString() const;
 
 private:
@@ -107,6 +134,7 @@ private:
     Square m_target;                //< Target square of the move
     PieceWithColor m_piece;         //< Piece being moved
     PieceWithColor m_promotedPiece; //< Piece promoted to, if applicable
+    Piece m_capturedPiece;          //< Piece that was captured
     bool m_isCapture;               //< Indicates if the move is a capture
     bool m_isPawnDoublePush;        //< Indicates if the move is a pawn double push
     bool m_isEnPassant;             //< Indicates if the move is an en passant capture
