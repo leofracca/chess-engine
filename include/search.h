@@ -28,7 +28,7 @@ private:
      * @param alpha The alpha value for alpha-beta pruning.
      * @param beta The beta value for alpha-beta pruning.
      * @param board The current board position.
-     * @param depth The remaining depth to search.
+     * @param depth The remaining depth to search. Can be extended in certain situations (e.g., check).
      * @param ply The current ply (depth from the root).
      * @return The evaluation score of the best move found.
      */

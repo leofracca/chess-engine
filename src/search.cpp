@@ -19,9 +19,11 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
     }
 
     Move localBestMove;
-    const int oldAlpha = alpha;
-    bool hasLegalMoves = false;
-    auto moves         = board.generateMoves();
+    const int oldAlpha  = alpha;
+    bool hasLegalMoves  = false;
+    const bool isCheck  = board.isCheck();
+    const int extension = isCheck ? 1 : 0;
+    auto moves          = board.generateMoves();
 
     sortMoves(moves);
 
@@ -35,7 +37,7 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
         }
 
         hasLegalMoves   = true;
-        const int score = -negamax(-beta, -alpha, newBoard, depth - 1, ply + 1);
+        const int score = -negamax(-beta, -alpha, newBoard, depth - 1 + extension, ply + 1);
         newBoard        = board;
 
         // Beta-cutoff
@@ -61,12 +63,8 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
 
     if (!hasLegalMoves)
     {
-        // Checkmate or stalemate
         // If the side to move has no legal moves, it's either checkmate or stalemate
-        // It's possible to differentiate by checking if the king is in check
-        const PieceWithColor king = board.getSideToMove() == White ? WhiteKing : BlackKing;
-        const Square kingSquare   = board.getBitboardForPiece(king).getSquareOfLeastSignificantBitIndex();
-        if (board.isSquareAttacked(kingSquare, board.getSideToMove() == White ? Black : White))
+        if (isCheck)
         {
             return negativeInfinity + ply; // Checkmate, return a very low score
         }
@@ -136,9 +134,8 @@ int Search::quiescence(int alpha, int beta, Board& board)
 void Search::sortMoves(std::vector<Move>& moves)
 {
     // Sort the moves based on their score
-    std::sort(moves.begin(), moves.end(), [](const Move& a, const Move& b) {
-        return compareMoves(a, b);
-    });
+    std::sort(moves.begin(), moves.end(), [](const Move& a, const Move& b)
+              { return compareMoves(a, b); });
 }
 
 bool Search::compareMoves(const Move& a, const Move& b)

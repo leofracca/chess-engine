@@ -134,6 +134,13 @@ public:
      */
     [[nodiscard]] Side getSideToMove() const;
 
+    /**
+     * @brief Check if the current player's king is in check.
+     *
+     * @return True if the king is in check, false otherwise.
+     */
+    [[nodiscard]] bool isCheck() const;
+
 private:
     /**
      * @brief Convert a PieceWithColor to its corresponding FEN character.

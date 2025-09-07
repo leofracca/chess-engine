@@ -492,7 +492,7 @@ void Board::generatePawnMoves(const PieceWithColor piece, std::vector<Move>& mov
 
         while (attacks != emptyBitboard)
         {
-            target = attacks.getSquareOfLeastSignificantBitIndex();
+            target              = attacks.getSquareOfLeastSignificantBitIndex();
             Piece capturedPiece = getOpponentCapturedPiece(target);
 
             // Capture and promotion
@@ -708,6 +708,13 @@ Bitboard Board::getBitboardForPiece(const PieceWithColor piece) const
 Side Board::getSideToMove() const
 {
     return m_sideToMove;
+}
+
+bool Board::isCheck() const
+{
+    const PieceWithColor king = m_sideToMove == White ? WhiteKing : BlackKing;
+    const Square kingSquare   = getBitboardForPiece(king).getSquareOfLeastSignificantBitIndex();
+    return isSquareAttacked(kingSquare, m_sideToMove == White ? Black : White);
 }
 
 } // namespace chess_engine
