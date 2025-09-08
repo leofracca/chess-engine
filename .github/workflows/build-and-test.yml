@@ -64,13 +64,18 @@ jobs:
           make
           cd ../..
 
+      - name: Download and unzip opening book
+        run: |
+          curl -L -o 8moves_v3.pgn.zip https://github.com/official-stockfish/books/raw/refs/heads/master/8moves_v3.pgn.zip
+          unzip 8moves_v3.pgn.zip
+
       - name: Run matches between current and previous version
         run: |
           ./fastchess/fastchess \
           -engine cmd=./build/chess-engine name="New version" \
           -engine cmd=./chess-engine/build/chess-engine name="Current version" \
           -pgnout file="games.pgn" \
-          -openings file=8moves_v3.pgn format=pgn order=random \
+          -openings file=../8moves_v3.pgn format=pgn order=random \
           -each tc=120+0.08 \
           -rounds 1000 -repeat \
           -concurrency 8 \
