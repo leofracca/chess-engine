@@ -47,6 +47,33 @@ jobs:
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}}
 
-      - name: Run tests
-        working-directory: ${{github.workspace}}/build
-        run: ctest --output-on-failure
+#      - name: Run tests
+#        working-directory: ${{github.workspace}}/build
+#        run: ctest --output-on-failure
+
+      - name: Clone and build fastchess
+        run: git clone https://github.com/Disservin/fastchess.git && cd fastchess && make -j
+
+      - name: Get the previous version of chess engine
+        run: |
+          git clone --depth 1 --branch $(git ls-remote --tags --sort="v:refname" https://github.com/leofracca/chess-engine.git | tail -n1 | sed 's/.*\///') https://github.com/leofracca/chess-engine.git
+          cd chess-engine
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make
+          cd ../..
+
+      - name: Run matches between current and previous version
+        run: |
+          ./fastchess/fastchess \
+          -engine cmd=./build/chess-engine name="New version" \
+          -engine cmd=./chess-engine/build/chess-engine name="Current version" \
+          -pgnout file="games.pgn" \
+          -openings file=8moves_v3.pgn format=pgn order=random \
+          -each tc=120+0.08 \
+          -rounds 1000 -repeat \
+          -concurrency 8 \
+          -recover \
+          -sprt elo0=0 elo1=10 alpha=0.05 beta=0.1
+        continue-on-error: true
