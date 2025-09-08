@@ -56,6 +56,8 @@ jobs:
 
       - name: Get the previous version of chess engine
         run: |
+          pwd
+          ll
           git clone --depth 1 --branch $(git ls-remote --tags --sort="v:refname" https://github.com/leofracca/chess-engine.git | tail -n1 | sed 's/.*\///') https://github.com/leofracca/chess-engine.git
           cd chess-engine
           mkdir build
@@ -66,11 +68,15 @@ jobs:
 
       - name: Download and unzip opening book
         run: |
+          pwd
+          ll
           curl -L -o 8moves_v3.pgn.zip https://github.com/official-stockfish/books/raw/refs/heads/master/8moves_v3.pgn.zip
           unzip 8moves_v3.pgn.zip
 
       - name: Run matches between current and previous version
         run: |
+          pwd
+          ll
           ./fastchess/fastchess \
           -engine cmd=./build/chess-engine name="New version" \
           -engine cmd=./chess-engine/build/chess-engine name="Current version" \
