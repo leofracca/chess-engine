@@ -78,7 +78,7 @@ jobs:
           -openings file=8moves_v3.pgn format=pgn order=random \
           -each tc=120+0.08 \
           -rounds 1000 -repeat \
-          -concurrency 8 \
+          -concurrency 4 \
           -recover \
           -sprt elo0=0 elo1=10 alpha=0.05 beta=0.1
         continue-on-error: true
