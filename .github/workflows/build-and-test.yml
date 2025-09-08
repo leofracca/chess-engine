@@ -75,7 +75,7 @@ jobs:
           -engine cmd=./build/chess-engine name="New version" \
           -engine cmd=./chess-engine/build/chess-engine name="Current version" \
           -pgnout file="games.pgn" \
-          -openings file=../8moves_v3.pgn format=pgn order=random \
+          -openings file=8moves_v3.pgn format=pgn order=random \
           -each tc=120+0.08 \
           -rounds 1000 -repeat \
           -concurrency 8 \
