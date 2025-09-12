@@ -75,8 +75,8 @@ jobs:
         run: |
           pwd
           ./fastchess/fastchess \
-          -engine cmd=./build/chess-engine name="New version" \
-          -engine cmd=./chess-engine/build/chess-engine name="Current version" \
+          -engine cmd=./build/chess_engine name="New version" \
+          -engine cmd=./chess-engine/build/chess_engine name="Current version" \
           -pgnout file="games.pgn" \
           -openings file=8moves_v3.pgn format=pgn order=random \
           -each tc=120+0.08 \
