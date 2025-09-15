@@ -1,5 +1,6 @@
 #include "move.h"
 #include "board.h"
+#include "search.h"
 
 namespace chess_engine
 {
@@ -113,7 +114,7 @@ std::string Move::toString() const
     return result;
 }
 
-int Move::calculateScore() const
+int Move::calculateScore(int ply) const
 {
     int score = 0;
 
@@ -123,17 +124,38 @@ int Move::calculateScore() const
     {
         score += 1000 + 10 * std::to_underlying(m_capturedPiece) - (std::to_underlying(m_piece) % 6);
     }
+    else
+    {
+        // std::println("{} - {}", toString(), Search::s_killerMoves[0][ply].toString());
+        // std::println("{} - {}", toString(), Search::s_killerMoves[1][ply].toString());
+        // Killer and history moves
+        if (Search::s_killerMoves[0][ply] == *this)
+        {
+            // std::println("{} - {}", toString(), ply);
+            score += 500;
+        }
+        else if (Search::s_killerMoves[1][ply] == *this)
+        {
+            score += 400;
+        }
+        else
+        {
+            const int pieceIndex = std::to_underlying(m_piece);
+            const int targetIndex = std::to_underlying(m_target);
+            score += Search::s_historyHeuristic[pieceIndex][targetIndex];
+        }
+    }
 
     // Promotions are prioritized
     if (m_promotedPiece != InvalidPiece)
     {
-        score += 800 + std::to_underlying(m_promotedPiece);
+        score += 300 + std::to_underlying(m_promotedPiece);
     }
 
     // Castling is prioritized
     if (m_isCastling)
     {
-        score += 500;
+        score += 200;
     }
 
     return score;

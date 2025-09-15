@@ -43,18 +43,25 @@ private:
      * @param alpha The alpha value for alpha-beta pruning.
      * @param beta The beta value for alpha-beta pruning.
      * @param board The current board position.
+     * @param ply The current ply (depth from the root).
      * @return The evaluation score of the position.
      */
-    [[nodiscard]] static int quiescence(int alpha, int beta, Board& board);
+    [[nodiscard]] static int quiescence(int alpha, int beta, Board& board, int ply);
 
     /** @brief Sort moves based on their scores to improve search efficiency.
      *
      * @param moves The list of moves to sort.
+     * @param ply The current ply for killer move and history heuristic.
      */
-    static void sortMoves(std::vector<Move>& moves);
+    static void sortMoves(std::vector<Move>& moves, int ply);
 
 public:
-    static Move s_bestMove; //< The best move found during the search.
+    static Move s_bestMove;        //< The best move found during the search
+
+    static inline int s_nodes = 0; //< The number of nodes searched
+
+    static inline std::array<std::array<Move, 256>, 2> s_killerMoves     = {}; //< Killer moves table for move ordering (2 moves per ply)
+    static inline std::array<std::array<int, 64>, 12> s_historyHeuristic = {}; //< History heuristic table for move ordering
 
 private:
     static constexpr int positiveInfinity = std::numeric_limits<int>::max();

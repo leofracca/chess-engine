@@ -15,7 +15,12 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
     // Base case: evaluate the position
     if (depth == 0)
     {
-        return quiescence(alpha, beta, board);
+        return quiescence(alpha, beta, board, ply);
+    }
+
+    if constexpr (debug::is_debug)
+    {
+        s_nodes++;
     }
 
     Move localBestMove;
@@ -25,7 +30,7 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
     const int extension = isCheck ? 1 : 0;
     auto moves          = board.generateMoves();
 
-    sortMoves(moves);
+    sortMoves(moves, ply);
 
     for (Move move: moves)
     {
@@ -45,6 +50,11 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
         // No better move possible
         if (score >= beta)
         {
+            if (!move.isCapture())
+            {
+                s_killerMoves[1][ply] = s_killerMoves[0][ply]; // Shift the previous killer move down
+                s_killerMoves[0][ply] = move;                  // Store the move as a killer move
+            }
             return beta;
         }
 
@@ -52,6 +62,13 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
         if (score > alpha)
         {
             alpha = score;
+
+            if (!move.isCapture())
+            {
+                const int pieceIndex = std::to_underlying(move.getPiece());
+                const int targetIndex = std::to_underlying(move.getTarget());
+                s_historyHeuristic[pieceIndex][targetIndex] += depth * depth;
+            }
 
             // Update the best move found so far at the root level
             if (ply == 0)
@@ -83,8 +100,13 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
     return alpha;
 }
 
-int Search::quiescence(int alpha, int beta, Board& board)
+int Search::quiescence(int alpha, const int beta, Board& board, int ply)
 {
+    if constexpr (debug::is_debug)
+    {
+        s_nodes++;
+    }
+
     const int evaluation = Evaluate::evaluatePosition(board);
 
     if (evaluation >= beta)
@@ -98,7 +120,7 @@ int Search::quiescence(int alpha, int beta, Board& board)
     }
 
     auto moves = board.generateMoves();
-    sortMoves(moves);
+    sortMoves(moves, ply);
 
     for (const Move move: moves)
     {
@@ -115,7 +137,7 @@ int Search::quiescence(int alpha, int beta, Board& board)
             continue;
         }
 
-        const int score = -quiescence(-beta, -alpha, newBoard);
+        const int score = -quiescence(-beta, -alpha, newBoard, ply + 1);
 
         if (score >= beta)
         {
@@ -131,10 +153,10 @@ int Search::quiescence(int alpha, int beta, Board& board)
     return alpha;
 }
 
-void Search::sortMoves(std::vector<Move>& moves)
+void Search::sortMoves(std::vector<Move>& moves, const int ply)
 {
     // Sort the moves based on their score
-    std::sort(moves.begin(), moves.end(), [](const Move& a, const Move& b)
-              { return a.calculateScore() > b.calculateScore(); });
+    std::sort(moves.begin(), moves.end(), [ply](const Move& a, const Move& b)
+              { return a.calculateScore(ply) > b.calculateScore(ply); });
 }
 } // namespace chess_engine

@@ -132,9 +132,18 @@ public:
     /**
      * @brief Calculate a score for the move based on its characteristics.
      *
+     * @param ply The current ply in the search tree.
      * @return The calculated score for the move.
      */
-    [[nodiscard]] int calculateScore() const;
+    [[nodiscard]] int calculateScore(int ply) const;
+
+    /**
+     * @brief Equality operator for Move.
+     *
+     * @param other The other Move object to compare with.
+     * @return True if the moves are equal, false otherwise.
+     */
+    bool operator==(const Move& other) const = default;
 
 private:
     Square m_source;                //< Source square of the move
