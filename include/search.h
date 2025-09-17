@@ -55,6 +55,13 @@ private:
      */
     static void sortMoves(std::vector<Move>& moves, int ply);
 
+    /** @brief Reset search data.
+     *
+     * This function resets the search data, including the number of nodes searched,
+     * killer moves, and history heuristic tables.
+     */
+    static void resetSearchData();
+
 public:
     static Move s_bestMove;        //< The best move found during the search
 

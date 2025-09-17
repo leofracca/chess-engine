@@ -6,6 +6,8 @@ Move Search::s_bestMove;
 
 int Search::search(Board& board, const int depth)
 {
+    resetSearchData();
+
     const int score = negamax(negativeInfinity, positiveInfinity, board, depth);
     return score;
 }
@@ -65,7 +67,7 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
 
             if (!move.isCapture())
             {
-                const int pieceIndex = std::to_underlying(move.getPiece());
+                const int pieceIndex  = std::to_underlying(move.getPiece());
                 const int targetIndex = std::to_underlying(move.getTarget());
                 s_historyHeuristic[pieceIndex][targetIndex] += depth * depth;
             }
@@ -158,5 +160,20 @@ void Search::sortMoves(std::vector<Move>& moves, const int ply)
     // Sort the moves based on their score
     std::sort(moves.begin(), moves.end(), [ply](const Move& a, const Move& b)
               { return a.calculateScore(ply) > b.calculateScore(ply); });
+}
+
+void Search::resetSearchData()
+{
+    if constexpr (debug::is_debug)
+    {
+        s_nodes = 0;
+    }
+
+    s_bestMove = Move();
+
+    for (auto& km: s_killerMoves)
+        std::ranges::fill(km, Move());
+    for (auto& hh: s_historyHeuristic)
+        std::ranges::fill(hh, 0);
 }
 } // namespace chess_engine
