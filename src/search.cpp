@@ -8,6 +8,17 @@ int Search::search(Board& board, const int depth)
 {
     resetSearchData();
 
+    // Iterative deepening
+    for (int currentDepth = 1; currentDepth <= depth; ++currentDepth)
+    {
+        const int score = negamax(negativeInfinity, positiveInfinity, board, currentDepth);
+        debug::debug_log("info depth {} score cp {} nodes {} pv {}\n",
+                         currentDepth,
+                         score,
+                         s_nodes,
+                         s_bestMove.toString());
+    }
+
     const int score = negamax(negativeInfinity, positiveInfinity, board, depth);
     return score;
 }
