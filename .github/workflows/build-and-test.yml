@@ -80,8 +80,8 @@ jobs:
           -engine cmd=./build/chess_engine name="New version" \
           -pgnout file="games.pgn" \
           -openings file=8moves_v3.pgn format=pgn order=random \
-          -each tc=120+0.08 \
-          -rounds 50 -repeat \
+          -each tc=60+0.08 \
+          -rounds 100 -repeat \
           -concurrency 4 \
           -recover \
           -sprt elo0=-1 elo1=1 alpha=0.05 beta=0.1 \
