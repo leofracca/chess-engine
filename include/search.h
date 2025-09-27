@@ -9,6 +9,16 @@ namespace chess_engine
 class Search
 {
 public:
+    static constexpr int maxPly = 256;
+    struct PVLine
+    {
+        std::array<Move, maxPly> moves = {};
+        int length                     = 0;
+    };
+
+    static inline PVLine emptyLine = {std::array<Move, maxPly>{}, 0};
+
+public:
     /**
      * @brief Perform a search to find the best move.
      *
@@ -28,11 +38,12 @@ private:
      * @param alpha The alpha value for alpha-beta pruning.
      * @param beta The beta value for alpha-beta pruning.
      * @param board The current board position.
+     * @param pvLine The principal variation line to store the best moves.
      * @param depth The remaining depth to search. Can be extended in certain situations (e.g., check).
      * @param ply The current ply (depth from the root).
      * @return The evaluation score of the best move found.
      */
-    [[nodiscard]] static int negamax(int alpha, int beta, Board& board, int depth, int ply = 0);
+    [[nodiscard]] static int negamax(int alpha, int beta, Board& board, PVLine& pvLine, int depth, int ply = 0);
 
     /**
      * @brief Quiescence search to evaluate "quiet" positions.
@@ -52,8 +63,9 @@ private:
      *
      * @param moves The list of moves to sort.
      * @param ply The current ply for killer move and history heuristic.
+     * @param pvLine The principal variation line to prioritize moves in the PV.
      */
-    static void sortMoves(std::vector<Move>& moves, int ply);
+    static void sortMoves(std::vector<Move>& moves, int ply, const PVLine& pvLine = emptyLine);
 
     /** @brief Reset search data.
      *
@@ -62,16 +74,17 @@ private:
      */
     static void resetSearchData();
 
-public:
-    static Move s_bestMove;        //< The best move found during the search
-
-    static inline int s_nodes = 0; //< The number of nodes searched
-
-    static inline std::array<std::array<Move, 256>, 2> s_killerMoves     = {}; //< Killer moves table for move ordering (2 moves per ply)
-    static inline std::array<std::array<int, 64>, 12> s_historyHeuristic = {}; //< History heuristic table for move ordering
 
 private:
     static constexpr int positiveInfinity = std::numeric_limits<int>::max();
     static constexpr int negativeInfinity = -positiveInfinity;
+
+public:
+    static Move s_bestMove; //< The best move found during the search
+
+    static inline int s_nodes = 0; //< The number of nodes searched
+
+    static inline std::array<std::array<Move, maxPly>, 2> s_killerMoves                           = {}; //< Killer moves table for move ordering (2 moves per ply)
+    static inline std::array<std::array<int, board_dimensions::N_SQUARES>, 12> s_historyHeuristic = {}; //< History heuristic table for move ordering
 };
 } // namespace chess_engine

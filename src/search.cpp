@@ -8,27 +8,46 @@ int Search::search(Board& board, const int depth)
 {
     resetSearchData();
 
+    int score = 0;
+    PVLine line;
+
     // Iterative deepening
     for (int currentDepth = 1; currentDepth <= depth; ++currentDepth)
     {
-        const int score = negamax(negativeInfinity, positiveInfinity, board, currentDepth);
-        debug::debug_log("info depth {} score cp {} nodes {} pv {}\n",
-                         currentDepth,
-                         score,
-                         s_nodes,
-                         s_bestMove.toString());
+        score = negamax(negativeInfinity, positiveInfinity, board, line, currentDepth);
+
+        // Build the principal variation string
+        std::string pvString;
+        for (int i = 0; i < line.length && i < currentDepth; ++i)
+        {
+            pvString += line.moves[i].toString() + " ";
+        }
+        std::println("info depth {} score cp {} nodes {} pv {}",
+                   currentDepth,
+                   score,
+                   s_nodes,
+                   pvString);
     }
 
-    const int score = negamax(negativeInfinity, positiveInfinity, board, depth);
+    s_bestMove = line.moves[0];
     return score;
 }
 
-int Search::negamax(int alpha, const int beta, Board& board, const int depth, const int ply)
+int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, const int depth, const int ply)
 {
-    // Base case: evaluate the position
+    PVLine line;
+
+    // Base case: perform quiescence search
     if (depth == 0)
     {
+        pvLine.length = 0;
         return quiescence(alpha, beta, board, ply);
+    }
+
+    // Maximum ply reached
+    if (ply >= maxPly)
+    {
+        return Evaluate::evaluatePosition(board);
     }
 
     if constexpr (debug::is_debug)
@@ -36,14 +55,12 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
         s_nodes++;
     }
 
-    Move localBestMove;
-    const int oldAlpha  = alpha;
     bool hasLegalMoves  = false;
     const bool isCheck  = board.isCheck();
     const int extension = isCheck ? 1 : 0;
     auto moves          = board.generateMoves();
 
-    sortMoves(moves, ply);
+    sortMoves(moves, ply, pvLine);
 
     for (Move move: moves)
     {
@@ -55,7 +72,7 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
         }
 
         hasLegalMoves   = true;
-        const int score = -negamax(-beta, -alpha, newBoard, depth - 1 + extension, ply + 1);
+        const int score = -negamax(-beta, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
         newBoard        = board;
 
         // Beta-cutoff
@@ -83,11 +100,13 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
                 s_historyHeuristic[pieceIndex][targetIndex] += depth * depth;
             }
 
-            // Update the best move found so far at the root level
-            if (ply == 0)
+            // Update the principal variation line
+            pvLine.moves[0] = move;
+            for (int i = 0; i < line.length; ++i)
             {
-                localBestMove = move;
+                pvLine.moves[i + 1] = line.moves[i];
             }
+            pvLine.length = line.length + 1;
         }
     }
 
@@ -104,16 +123,10 @@ int Search::negamax(int alpha, const int beta, Board& board, const int depth, co
         }
     }
 
-    // If alpha was updated, store the best move found
-    if (oldAlpha != alpha)
-    {
-        s_bestMove = localBestMove;
-    }
-
     return alpha;
 }
 
-int Search::quiescence(int alpha, const int beta, Board& board, int ply)
+int Search::quiescence(int alpha, const int beta, Board& board, const int ply)
 {
     if constexpr (debug::is_debug)
     {
@@ -121,6 +134,11 @@ int Search::quiescence(int alpha, const int beta, Board& board, int ply)
     }
 
     const int evaluation = Evaluate::evaluatePosition(board);
+
+    if (ply >= maxPly)
+    {
+        return evaluation;
+    }
 
     if (evaluation >= beta)
     {
@@ -166,11 +184,15 @@ int Search::quiescence(int alpha, const int beta, Board& board, int ply)
     return alpha;
 }
 
-void Search::sortMoves(std::vector<Move>& moves, const int ply)
+void Search::sortMoves(std::vector<Move>& moves, const int ply, const PVLine& pvLine)
 {
     // Sort the moves based on their score
-    std::sort(moves.begin(), moves.end(), [ply](const Move& a, const Move& b)
-              { return a.calculateScore(ply) > b.calculateScore(ply); });
+    std::sort(moves.begin(), moves.end(), [ply, &pvLine](const Move& a, const Move& b)
+    {
+        const bool aIsPV = pvLine.length > 0 && ply < pvLine.length && pvLine.moves[ply] == a;
+        const bool bIsPV = pvLine.length > 0 && ply < pvLine.length && pvLine.moves[ply] == b;
+        return a.calculateScore(ply, aIsPV) > b.calculateScore(ply, bIsPV);
+    });
 }
 
 void Search::resetSearchData()

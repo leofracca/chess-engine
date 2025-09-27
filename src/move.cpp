@@ -114,9 +114,15 @@ std::string Move::toString() const
     return result;
 }
 
-int Move::calculateScore(int ply) const
+int Move::calculateScore(const int ply, const bool isPV) const
 {
     int score = 0;
+
+    // Principal Variation moves are prioritized
+    if (isPV)
+    {
+        score += 2000;
+    }
 
     // Captures are prioritized
     // Use MVV-LVA (Most Valuable Victim - Least Valuable Attacker) heuristic
@@ -126,12 +132,9 @@ int Move::calculateScore(int ply) const
     }
     else
     {
-        // std::println("{} - {}", toString(), Search::s_killerMoves[0][ply].toString());
-        // std::println("{} - {}", toString(), Search::s_killerMoves[1][ply].toString());
         // Killer and history moves
         if (Search::s_killerMoves[0][ply] == *this)
         {
-            // std::println("{} - {}", toString(), ply);
             score += 500;
         }
         else if (Search::s_killerMoves[1][ply] == *this)

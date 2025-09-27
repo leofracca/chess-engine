@@ -133,9 +133,10 @@ public:
      * @brief Calculate a score for the move based on its characteristics.
      *
      * @param ply The current ply in the search tree.
+     * @param isPV Indicates if the move is part of the principal variation.
      * @return The calculated score for the move.
      */
-    [[nodiscard]] int calculateScore(int ply) const;
+    [[nodiscard]] int calculateScore(int ply, bool isPV) const;
 
     /**
      * @brief Equality operator for Move.
