@@ -35,7 +35,9 @@ int Search::search(Board& board, const int depth)
 
 int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, const int depth, const int ply)
 {
+    int score;
     PVLine line;
+    bool foundPV = false;
 
     // Base case: perform quiescence search
     if (depth == 0)
@@ -69,7 +71,23 @@ int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, con
         }
 
         hasLegalMoves   = true;
-        const int score = -negamax(-beta, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
+
+        if (foundPV)
+        {
+            // Null window search for other moves
+            score = -negamax(-alpha - 1, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
+
+            if ((score > alpha) && (score < beta)) // Check for failure.
+            {
+                // Re-search with full window if null window search fails high
+                score = -negamax(-beta, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
+            }
+        }
+        else
+        {
+            score = -negamax(-beta, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
+        }
+
         newBoard        = board;
 
         // Beta-cutoff
@@ -89,6 +107,7 @@ int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, con
         if (score > alpha)
         {
             alpha = score;
+            foundPV = true;
 
             if (!move.isCapture())
             {
