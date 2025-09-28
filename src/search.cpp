@@ -50,10 +50,7 @@ int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, con
         return Evaluate::evaluatePosition(board);
     }
 
-    if constexpr (debug::is_debug)
-    {
-        s_nodes++;
-    }
+    s_nodes++;
 
     bool hasLegalMoves  = false;
     const bool isCheck  = board.isCheck();
@@ -128,10 +125,7 @@ int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, con
 
 int Search::quiescence(int alpha, const int beta, Board& board, const int ply)
 {
-    if constexpr (debug::is_debug)
-    {
-        s_nodes++;
-    }
+    s_nodes++;
 
     const int evaluation = Evaluate::evaluatePosition(board);
 
@@ -197,10 +191,7 @@ void Search::sortMoves(std::vector<Move>& moves, const int ply, const PVLine& pv
 
 void Search::resetSearchData()
 {
-    if constexpr (debug::is_debug)
-    {
-        s_nodes = 0;
-    }
+    s_nodes = 0;
 
     s_bestMove = Move();
 
