@@ -124,7 +124,7 @@ void UCIConnection::parseGo(const std::string_view command, Board& board)
     }
     else
     {
-        depth = 6; // Default depth
+        depth = 8; // Default depth
     }
 
     Search::search(board, depth);
