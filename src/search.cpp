@@ -23,10 +23,10 @@ int Search::search(Board& board, const int depth)
             pvString += line.moves[i].toString() + " ";
         }
         std::println("info depth {} score cp {} nodes {} pv {}",
-                   currentDepth,
-                   score,
-                   s_nodes,
-                   pvString);
+                     currentDepth,
+                     score,
+                     s_nodes,
+                     pvString);
     }
 
     s_bestMove = line.moves[0];
@@ -37,7 +37,6 @@ int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, con
 {
     int score;
     PVLine line;
-    bool foundPV = false;
 
     // Base case: perform quiescence search
     if (depth == 0)
@@ -58,11 +57,12 @@ int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, con
     const bool isCheck  = board.isCheck();
     const int extension = isCheck ? 1 : 0;
     auto moves          = board.generateMoves();
+    int movesSearched   = 0;
 
     sortMoves(moves, ply, pvLine);
-
-    for (Move move: moves)
+    for (size_t moveIndex = 0; moveIndex < moves.size(); moveIndex++)
     {
+        Move move      = moves[moveIndex];
         Board newBoard = board;
 
         if (const bool isValidMove = newBoard.makeMove(move); !isValidMove)
@@ -70,25 +70,40 @@ int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, con
             continue;
         }
 
-        hasLegalMoves   = true;
+        hasLegalMoves = true;
 
-        if (foundPV)
+        if (movesSearched == 0)
         {
-            // Null window search for other moves
-            score = -negamax(-alpha - 1, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
-
-            if ((score > alpha) && (score < beta)) // Check for failure.
-            {
-                // Re-search with full window if null window search fails high
-                score = -negamax(-beta, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
-            }
+            // Full window search for the first move
+            score = -negamax(-beta, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
         }
         else
         {
-            score = -negamax(-beta, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
+            if (canReduce(moveIndex, move, isCheck, depth, extension))
+            {
+                // Reduced depth search for other moves (Late Move Reduction)
+                score = -negamax(-alpha - 1, -alpha, newBoard, line, depth - LMRReduction + extension, ply + 1);
+            }
+            else
+            {
+                score = alpha + 1; // Force a re-search
+            }
+
+            if (score > alpha)
+            {
+                // Null window search for other moves
+                score = -negamax(-alpha - 1, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
+
+                if ((score > alpha) && (score < beta)) // Check for failure.
+                {
+                    // Re-search with full window if null window search fails high
+                    score = -negamax(-beta, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
+                }
+            }
         }
 
-        newBoard        = board;
+        newBoard = board;
+        movesSearched++;
 
         // Beta-cutoff
         // If the opponent has found a move that is too good for us, prune the branch
@@ -107,7 +122,6 @@ int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, con
         if (score > alpha)
         {
             alpha = score;
-            foundPV = true;
 
             if (!move.isCapture())
             {
@@ -133,10 +147,7 @@ int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, con
         {
             return negativeInfinity + ply; // Checkmate, return a very low score
         }
-        else
-        {
-            return 0; // Stalemate, return a neutral score
-        }
+        return 0; // Stalemate, return a neutral score
     }
 
     return alpha;
@@ -218,5 +229,15 @@ void Search::resetSearchData()
         std::ranges::fill(km, Move());
     for (auto& hh: s_historyHeuristic)
         std::ranges::fill(hh, 0);
+}
+
+bool Search::canReduce(int moveIndex, const Move& move, bool isCheck, int depth, int extension)
+{
+    return moveIndex > lateMoveReductionThreshold &&
+           !move.isCapture() &&
+           !move.isPromotion() &&
+           !isCheck &&
+           depth > minDepthForLMR &&
+           extension == 0;
 }
 } // namespace chess_engine

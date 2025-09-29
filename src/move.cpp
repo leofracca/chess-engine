@@ -80,6 +80,12 @@ bool Move::isCastling() const
     return m_isCastling;
 }
 
+bool Move::isPromotion() const
+{
+    return m_promotedPiece != InvalidPiece;
+}
+
+
 std::string Move::toString() const
 {
     std::string result;

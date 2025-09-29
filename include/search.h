@@ -74,10 +74,28 @@ private:
      */
     static void resetSearchData();
 
+    /** @brief Determine if a move can be reduced using Late Move Reductions (LMR).
+     *
+     * This function checks if a move can be reduced based on its index, whether it is a check,
+     * the current depth, and any extensions applied. It follows the LMR criteria to decide
+     * if the move should be searched with reduced depth.
+     *
+     * @param moveIndex The index of the move in the move list.
+     * @param move The move being considered.
+     * @param isCheck Indicates if the current position is a check.
+     * @param depth The current search depth.
+     * @param extension Any extensions applied to the depth.
+     * @return True if the move can be reduced, false otherwise.
+     */
+    static bool canReduce(int moveIndex, const Move& move, bool isCheck, int depth, int extension);
+
 
 private:
-    static constexpr int positiveInfinity = std::numeric_limits<int>::max();
-    static constexpr int negativeInfinity = -positiveInfinity;
+    static constexpr int positiveInfinity           = std::numeric_limits<int>::max();
+    static constexpr int negativeInfinity           = -positiveInfinity;
+    static constexpr int lateMoveReductionThreshold = 3;
+    static constexpr int minDepthForLMR             = 2;
+    static constexpr int LMRReduction               = 2;
 
 public:
     static Move s_bestMove; //< The best move found during the search

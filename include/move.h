@@ -123,6 +123,13 @@ public:
     [[nodiscard]] bool isCastling() const;
 
     /**
+     * @brief Check if the move is a promotion.
+     *
+     * @return True if the move is a promotion, false otherwise.
+     */
+    [[nodiscard]] bool isPromotion() const;
+
+    /**
      * @brief Convert the move to a string in UCI format.
      *
      * @return The move as a string in UCI format.
