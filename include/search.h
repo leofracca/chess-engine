@@ -89,6 +89,15 @@ private:
      */
     static bool canReduce(int moveIndex, const Move& move, bool isCheck, int depth, int extension);
 
+    /** @brief Determine if pruning can be applied in the current position.
+     *
+     * @param isCheck Indicates if the current position is a check.
+     * @param depth The current search depth.
+     * @param ply The current ply (depth from the root).
+     * @param pvLineLength The length of the principal variation line.
+     * @return True if pruning can be applied, false otherwise.
+     */
+    static bool canPrune(bool isCheck, int depth, int ply, int pvLineLength);
 
 private:
     static constexpr int positiveInfinity           = std::numeric_limits<int>::max();
@@ -96,6 +105,7 @@ private:
     static constexpr int lateMoveReductionThreshold = 3;
     static constexpr int minDepthForLMR             = 2;
     static constexpr int LMRReduction               = 2;
+    static constexpr int NullMovePruningReduction   = 2;
 
 public:
     static Move s_bestMove; //< The best move found during the search

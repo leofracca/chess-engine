@@ -430,6 +430,15 @@ bool Board::makeMove(const Move& move)
     return true; // Move was valid
 }
 
+void Board::makeNullMove()
+{
+    m_sideToMove = m_sideToMove == White ? Black : White;
+    m_enPassantSquare = Square::INVALID;
+    m_halfMoveClock++;
+    m_fullMoveNumber++;
+}
+
+
 void Board::generatePawnMoves(const PieceWithColor piece, std::vector<Move>& moves)
 {
     constexpr Bitboard emptyBitboard;

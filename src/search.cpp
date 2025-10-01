@@ -51,13 +51,25 @@ int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, con
         return Evaluate::evaluatePosition(board);
     }
 
-    s_nodes++;
-
     bool hasLegalMoves  = false;
     const bool isCheck  = board.isCheck();
     const int extension = isCheck ? 1 : 0;
     auto moves          = board.generateMoves();
     int movesSearched   = 0;
+
+    s_nodes++;
+
+    // Null Move Pruning
+    if (canPrune(isCheck, depth, ply, pvLine.length))
+    {
+        Board nullMoveBoard = board;
+        nullMoveBoard.makeNullMove();
+        const int nullMoveScore = -negamax(-beta, -beta + 1, nullMoveBoard, line, depth - 1 - NullMovePruningReduction, ply + 1);
+        if (nullMoveScore >= beta)
+        {
+            return beta; // Fail-hard beta cutoff
+        }
+    }
 
     sortMoves(moves, ply, pvLine);
     for (size_t moveIndex = 0; moveIndex < moves.size(); moveIndex++)
@@ -72,11 +84,13 @@ int Search::negamax(int alpha, const int beta, Board& board, PVLine& pvLine, con
 
         hasLegalMoves = true;
 
+        // First move is searched at full depth
         if (movesSearched == 0)
         {
             // Full window search for the first move
             score = -negamax(-beta, -alpha, newBoard, line, depth - 1 + extension, ply + 1);
         }
+        // Apply Late Move Reduction (LMR) for subsequent moves
         else
         {
             if (canReduce(moveIndex, move, isCheck, depth, extension))
@@ -231,7 +245,7 @@ void Search::resetSearchData()
         std::ranges::fill(hh, 0);
 }
 
-bool Search::canReduce(int moveIndex, const Move& move, bool isCheck, int depth, int extension)
+bool Search::canReduce(const int moveIndex, const Move& move, const bool isCheck, const int depth, const int extension)
 {
     return moveIndex > lateMoveReductionThreshold &&
            !move.isCapture() &&
@@ -239,5 +253,14 @@ bool Search::canReduce(int moveIndex, const Move& move, bool isCheck, int depth,
            !isCheck &&
            depth > minDepthForLMR &&
            extension == 0;
+}
+
+bool Search::canPrune(const bool isCheck, const int depth, const int ply, const int pvLineLength)
+{
+    // TODO: Need to check for zugzwang positions; could also avoid pruning in endgames in general
+    return !isCheck &&
+           depth >= NullMovePruningReduction + 1 &&
+           ply != 0 &&
+           pvLineLength == 0;
 }
 } // namespace chess_engine

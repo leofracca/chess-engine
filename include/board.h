@@ -116,6 +116,13 @@ public:
      */
     /*[[nodiscard]]*/ bool makeMove(const Move& move);
 
+    /**
+     * @brief Make a null move (pass the turn to the opponent).
+     *
+     * This function is used in search algorithms to implement null move pruning.
+     */
+    void makeNullMove();
+
     [[nodiscard]] Bitboard getBitboardForPiece(const PieceWithColor piece) const;
 
     /**
