@@ -8,13 +8,35 @@ int Search::search(Board& board, const int depth)
 {
     resetSearchData();
 
-    int score = 0;
+    int score = 0, prevScore = 0;
     PVLine line;
 
     // Iterative deepening
     for (int currentDepth = 1; currentDepth <= depth; ++currentDepth)
     {
-        score = negamax(negativeInfinity, positiveInfinity, board, line, currentDepth);
+        int alpha = std::max(negativeInfinity, prevScore - aspirationWindowSize);
+        int beta  = std::min(positiveInfinity, prevScore + aspirationWindowSize);
+
+        while (true)
+        {
+            score = negamax(alpha, beta, board, line, currentDepth);
+
+            if (score <= alpha)
+            {
+                // Fail-low: widen the window and re-search
+                alpha = std::max(negativeInfinity, alpha - aspirationWindowSize);
+            }
+            else if (score >= beta)
+            {
+                // Fail-high: widen the window and re-search
+                beta = std::min(positiveInfinity, beta + aspirationWindowSize);
+            }
+            else
+            {
+                break; // Score is within the window, exit the loop
+            }
+        }
+        prevScore = score;
 
         // Build the principal variation string
         std::string pvString;

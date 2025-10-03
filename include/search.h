@@ -102,6 +102,7 @@ private:
 private:
     static constexpr int positiveInfinity           = std::numeric_limits<int>::max();
     static constexpr int negativeInfinity           = -positiveInfinity;
+    static constexpr int aspirationWindowSize       = 50;
     static constexpr int lateMoveReductionThreshold = 3;
     static constexpr int minDepthForLMR             = 2;
     static constexpr int LMRReduction               = 2;
