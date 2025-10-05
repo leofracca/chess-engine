@@ -5,6 +5,7 @@ namespace chess_engine
 int Evaluate::evaluatePosition(const Board& board)
 {
     int score = 0;
+    int whiteBishops = 0, blackBishops = 0;
 
     for (const PieceWithColor piece: PieceWithColor())
     {
@@ -31,9 +32,11 @@ int Evaluate::evaluatePosition(const Board& board)
                     break;
                 case WhiteBishop:
                     score += s_bishopTable[std::to_underlying(square)];
+                    whiteBishops++;
                     break;
                 case BlackBishop:
                     score -= s_bishopTable[63 - std::to_underlying(square)];
+                    blackBishops++;
                     break;
                 case WhiteRook:
                     score += s_rookTable[std::to_underlying(square)];
@@ -61,6 +64,15 @@ int Evaluate::evaluatePosition(const Board& board)
 
             bitboardPiece.clearBit(square);
         }
+    }
+
+    if (whiteBishops >= 2)
+    {
+        score += s_bishopPairBonus;
+    }
+    if (blackBishops >= 2)
+    {
+        score -= s_bishopPairBonus;
     }
 
     return board.getSideToMove() == White ? score : -score;

@@ -141,5 +141,7 @@ private:
         -50,-30,-30,-30,-30,-30,-30,-50
     };
     // clang-format on
+
+    static constexpr int s_bishopPairBonus = 10; //< Bonus for having the bishop pair
 };
 } // namespace chess_engine
