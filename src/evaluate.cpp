@@ -78,6 +78,9 @@ int Evaluate::evaluatePosition(const Board& board)
     score += evaluatePawnStructure(board, White);
     score -= evaluatePawnStructure(board, Black);
 
+    score += evaluateRooksOnOpenFile(board, White);
+    score -= evaluateRooksOnOpenFile(board, Black);
+
     return board.getSideToMove() == White ? score : -score;
 }
 
@@ -154,4 +157,58 @@ int Evaluate::evaluatePawnStructure(const Board& board, Side side)
 
     return score;
 }
+
+int Evaluate::evaluateRooksOnOpenFile(const Board& board, Side side)
+{
+    int score                         = 0;
+    Bitboard rooksBitboard            = board.getBitboardForPiece(side == White ? WhiteRook : BlackRook);
+    const Bitboard whitePawnsBitboard = board.getBitboardForPiece(WhitePawn);
+    const Bitboard blackPawnsBitboard = board.getBitboardForPiece(BlackPawn);
+    Bitboard allPawnsBitboard         = whitePawnsBitboard | blackPawnsBitboard;
+
+    while (rooksBitboard != Bitboard())
+    {
+        const auto rookSquare = rooksBitboard.getSquareOfLeastSignificantBitIndex();
+        const int file        = std::to_underlying(rookSquare) % board_dimensions::N_FILES;
+        bool isOpenFile       = true;
+        bool isSemiOpenFile   = true;
+
+        while (allPawnsBitboard != Bitboard())
+        {
+            const auto pawnSquare = allPawnsBitboard.getSquareOfLeastSignificantBitIndex();
+            const int pawnFile    = std::to_underlying(pawnSquare) % board_dimensions::N_FILES;
+
+            if (pawnFile == file)
+            {
+                isOpenFile = false;
+
+                if (side == White && whitePawnsBitboard.getBit(pawnSquare) == 1)
+                {
+                    isSemiOpenFile = false;
+                }
+                else if (side == Black && blackPawnsBitboard.getBit(pawnSquare) == 1)
+                {
+                    isSemiOpenFile = false;
+                }
+                break;
+            }
+
+            allPawnsBitboard.clearBit(pawnSquare);
+        }
+
+        if (isOpenFile)
+        {
+            score += s_rookOnOpenFileBonus;
+        }
+        else if (isSemiOpenFile)
+        {
+            score += s_rookOnSemiOpenFileBonus;
+        }
+
+        rooksBitboard.clearBit(rookSquare);
+    }
+
+    return score;
+}
+
 } // namespace chess_engine

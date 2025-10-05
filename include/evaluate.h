@@ -38,6 +38,14 @@ private:
      */
     [[nodiscard]] static int evaluatePawnStructure(const Board& board, Side side);
 
+    /** @brief Evaluate the rook placement on open and semi-open files.
+     *
+     * @param board The board to evaluate.
+     * @param side The side to evaluate.
+     * @return The evaluation score for rooks on open and semi-open files in centipawns.
+     */
+    [[nodiscard]] static int evaluateRooksOnOpenFile(const Board& board, Side side);
+
 public:
     // clang-format off
     //< Piece values in centipawns
@@ -151,9 +159,11 @@ private:
     };
     // clang-format on
 
-    static constexpr int s_bishopPairBonus     = 10;  //< Bonus for having the bishop pair
-    static constexpr int s_isolatedPawnPenalty = -10; //< Penalty for isolated pawns
-    static constexpr int s_doublePawnPenalty   = -10; //< Penalty for doubled pawns
-    static constexpr int s_passedPawnBonus     = 20;  //< Bonus for passed pawns
+    static constexpr int s_bishopPairBonus         = 10;  //< Bonus for having the bishop pair
+    static constexpr int s_isolatedPawnPenalty     = -10; //< Penalty for isolated pawns
+    static constexpr int s_doublePawnPenalty       = -10; //< Penalty for doubled pawns
+    static constexpr int s_passedPawnBonus         = 20;  //< Bonus for passed pawns
+    static constexpr int s_rookOnOpenFileBonus     = 15;  //< Bonus for rooks on open files
+    static constexpr int s_rookOnSemiOpenFileBonus = 10;  //< Bonus for rooks on semi-open files
 };
 } // namespace chess_engine
