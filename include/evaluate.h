@@ -29,6 +29,15 @@ public:
      */
     [[nodiscard]] static int evaluatePosition(const Board& board);
 
+private:
+    /** @brief Evaluate the pawn structure for a given side.
+     *
+     * @param board The board to evaluate.
+     * @param side The side to evaluate.
+     * @return The evaluation score for the pawn structure in centipawns.
+     */
+    [[nodiscard]] static int evaluatePawnStructure(const Board& board, Side side);
+
 public:
     // clang-format off
     //< Piece values in centipawns
@@ -142,6 +151,9 @@ private:
     };
     // clang-format on
 
-    static constexpr int s_bishopPairBonus = 10; //< Bonus for having the bishop pair
+    static constexpr int s_bishopPairBonus     = 10;  //< Bonus for having the bishop pair
+    static constexpr int s_isolatedPawnPenalty = -10; //< Penalty for isolated pawns
+    static constexpr int s_doublePawnPenalty   = -10; //< Penalty for doubled pawns
+    static constexpr int s_passedPawnBonus     = 20;  //< Bonus for passed pawns
 };
 } // namespace chess_engine
