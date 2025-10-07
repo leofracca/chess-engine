@@ -148,6 +148,14 @@ public:
      */
     [[nodiscard]] bool isCheck() const;
 
+    /**
+     * @brief Get the occupancy bitboard for a given side.
+     *
+     * @param side The side for which to get the occupancy (White, Black, or WhiteAndBlack).
+     * @return The occupancy bitboard for the specified side.
+     */
+    [[nodiscard]] Bitboard getOccupancyForSide(Side side) const;
+
 private:
     /**
      * @brief Convert a PieceWithColor to its corresponding FEN character.

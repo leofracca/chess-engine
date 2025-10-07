@@ -46,6 +46,14 @@ private:
      */
     [[nodiscard]] static int evaluateRooksOnOpenFile(const Board& board, Side side);
 
+    /** @brief Evaluate the mobility of pieces for a given side.
+     *
+     * @param board The board to evaluate.
+     * @param side The side to evaluate.
+     * @return The evaluation score for piece mobility in centipawns.
+     */
+    [[nodiscard]] static int evaluateMobility(const Board& board, Side side);
+
 public:
     // clang-format off
     //< Piece values in centipawns
@@ -165,5 +173,9 @@ private:
     static constexpr int s_passedPawnBonus         = 20;  //< Bonus for passed pawns
     static constexpr int s_rookOnOpenFileBonus     = 15;  //< Bonus for rooks on open files
     static constexpr int s_rookOnSemiOpenFileBonus = 10;  //< Bonus for rooks on semi-open files
+    static constexpr int s_knightMobilityBonus     = 4;   //< Bonus per square a knight can move to
+    static constexpr int s_bishopMobilityBonus     = 4;   //< Bonus per square a bishop can move to
+    static constexpr int s_rookMobilityBonus       = 2;   //< Bonus per square a rook can move to
+    static constexpr int s_queenMobilityBonus      = 1;   //< Bonus per square a queen can move to
 };
 } // namespace chess_engine

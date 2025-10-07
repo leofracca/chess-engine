@@ -1,4 +1,5 @@
 #include "evaluate.h"
+#include "pregenerated_moves.h"
 
 namespace chess_engine
 {
@@ -80,6 +81,9 @@ int Evaluate::evaluatePosition(const Board& board)
 
     score += evaluateRooksOnOpenFile(board, White);
     score -= evaluateRooksOnOpenFile(board, Black);
+
+    score += evaluateMobility(board, White);
+    score -= evaluateMobility(board, Black);
 
     return board.getSideToMove() == White ? score : -score;
 }
@@ -206,6 +210,89 @@ int Evaluate::evaluateRooksOnOpenFile(const Board& board, Side side)
         }
 
         rooksBitboard.clearBit(rookSquare);
+    }
+
+    return score;
+}
+
+// TODO: Code is repeated for each piece, refactor
+// Note: Maybe can reuse the code from move generation (Board::generatePieceMoves)?
+int Evaluate::evaluateMobility(const Board& board, Side side)
+{
+    int score              = 0;
+    Side otherSide         = side == White ? Black : White;
+    constexpr Bitboard emptyBitboard;
+
+    const Bitboard occupancy         = board.getOccupancyForSide(side);
+    const Bitboard opponentOccupancy = board.getOccupancyForSide(otherSide);
+    const Bitboard allOccupancy      = occupancy | opponentOccupancy;
+
+    PieceWithColor piece   = side == White ? WhiteKnight : BlackKnight;
+    Bitboard bitboardPiece = board.getBitboardForPiece(piece);
+    while (bitboardPiece != emptyBitboard)
+    {
+        const Square source = bitboardPiece.getSquareOfLeastSignificantBitIndex();
+        Bitboard attacks = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
+
+        while (attacks != emptyBitboard)
+        {
+            score +=  s_knightMobilityBonus;
+            const Square target = attacks.getSquareOfLeastSignificantBitIndex();
+            attacks.clearBit(target);
+        }
+
+        bitboardPiece.clearBit(source);
+    }
+
+    piece         = side == White ? WhiteBishop : BlackBishop;
+    bitboardPiece = board.getBitboardForPiece(piece);
+    while (bitboardPiece != emptyBitboard)
+    {
+        const Square source = bitboardPiece.getSquareOfLeastSignificantBitIndex();
+        Bitboard attacks = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
+
+        while (attacks != emptyBitboard)
+        {
+            score +=  s_bishopMobilityBonus;
+            const Square target = attacks.getSquareOfLeastSignificantBitIndex();
+            attacks.clearBit(target);
+        }
+
+        bitboardPiece.clearBit(source);
+    }
+
+    piece         = side == White ? WhiteRook : BlackRook;
+    bitboardPiece = board.getBitboardForPiece(piece);
+    while (bitboardPiece != emptyBitboard)
+    {
+        const Square source = bitboardPiece.getSquareOfLeastSignificantBitIndex();
+        Bitboard attacks = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
+
+        while (attacks != emptyBitboard)
+        {
+            score +=  s_rookMobilityBonus;
+            const Square target = attacks.getSquareOfLeastSignificantBitIndex();
+            attacks.clearBit(target);
+        }
+
+        bitboardPiece.clearBit(source);
+    }
+
+    piece         = side == White ? WhiteQueen : BlackQueen;
+    bitboardPiece = board.getBitboardForPiece(piece);
+    while (bitboardPiece != emptyBitboard)
+    {
+        const Square source = bitboardPiece.getSquareOfLeastSignificantBitIndex();
+        Bitboard attacks = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
+
+        while (attacks != emptyBitboard)
+        {
+            score +=  s_queenMobilityBonus;
+            const Square target = attacks.getSquareOfLeastSignificantBitIndex();
+            attacks.clearBit(target);
+        }
+
+        bitboardPiece.clearBit(source);
     }
 
     return score;

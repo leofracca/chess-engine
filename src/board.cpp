@@ -726,4 +726,9 @@ bool Board::isCheck() const
     return isSquareAttacked(kingSquare, m_sideToMove == White ? Black : White);
 }
 
+Bitboard Board::getOccupancyForSide(const Side side) const
+{
+    return m_occupancies[std::to_underlying(side)];
+}
+
 } // namespace chess_engine
