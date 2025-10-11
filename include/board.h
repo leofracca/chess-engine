@@ -156,6 +156,14 @@ public:
      */
     [[nodiscard]] Bitboard getOccupancyForSide(Side side) const;
 
+    /**
+     * @brief Get the total material value for a given side.
+     *
+     * @param side The side for which to calculate the total material.
+     * @return The total material value for the specified side.
+     */
+    [[nodiscard]] int getTotalMaterial(Side side) const;
+
 private:
     /**
      * @brief Convert a PieceWithColor to its corresponding FEN character.

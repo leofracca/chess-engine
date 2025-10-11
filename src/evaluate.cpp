@@ -8,6 +8,11 @@ int Evaluate::evaluatePosition(const Board& board)
     int score        = 0;
     int whiteBishops = 0, blackBishops = 0;
 
+    // Choose king table based on material (endgame vs middle game)
+    const bool isEndGame = board.getTotalMaterial(White) - s_piecesValues[std::to_underlying(WhiteKing)] <= s_endGameThreshold &&
+                           board.getTotalMaterial(Black) + s_piecesValues[std::to_underlying(BlackKing)] <= s_endGameThreshold;
+    const std::array<int, 64>& kingTable = isEndGame ? s_kingEndGameTable : s_kingMiddleGameTable;
+
     for (const PieceWithColor piece: PieceWithColor())
     {
         Bitboard bitboardPiece = board.getBitboardForPiece(piece);
@@ -52,12 +57,10 @@ int Evaluate::evaluatePosition(const Board& board)
                     score -= s_queenTable[63 - std::to_underlying(square)];
                     break;
                 case WhiteKing:
-                    // FIXME: Differentiate between opening/middle game and endgame
-                    score += s_kingMiddleGameTable[std::to_underlying(square)];
+                    score += kingTable[std::to_underlying(square)];
                     break;
                 case BlackKing:
-                    // FIXME: Differentiate between opening/middle game and endgame
-                    score -= s_kingMiddleGameTable[63 - std::to_underlying(square)];
+                    score -= kingTable[63 - std::to_underlying(square)];
                     break;
                 default:
                     break;

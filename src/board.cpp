@@ -1,4 +1,6 @@
 #include "board.h"
+
+#include "evaluate.h"
 #include "pregenerated_moves.h"
 
 namespace chess_engine
@@ -730,5 +732,21 @@ Bitboard Board::getOccupancyForSide(const Side side) const
 {
     return m_occupancies[std::to_underlying(side)];
 }
+
+int Board::getTotalMaterial(const Side side) const
+{
+    int totalMaterial = 0;
+    const PieceWithColor pawn = side == White ? WhitePawn : BlackPawn;
+    const PieceWithColor king = side == White ? WhiteKing : BlackKing;
+
+    for (PieceWithColor piece = pawn; piece <= king; ++piece)
+    {
+        const int pieceValue = Evaluate::s_piecesValues[std::to_underlying(piece)];
+        const int pieceCount = m_bitboardsPieces[std::to_underlying(piece)].getNumberOfBitsSet();
+        totalMaterial += pieceValue * pieceCount;
+    }
+    return totalMaterial;
+}
+
 
 } // namespace chess_engine

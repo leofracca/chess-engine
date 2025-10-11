@@ -177,5 +177,7 @@ private:
     static constexpr int s_bishopMobilityBonus     = 4;   //< Bonus per square a bishop can move to
     static constexpr int s_rookMobilityBonus       = 2;   //< Bonus per square a rook can move to
     static constexpr int s_queenMobilityBonus      = 1;   //< Bonus per square a queen can move to
+
+    static constexpr int s_endGameThreshold = 1300; //< Threshold to determine if the game is in the endgame phase
 };
 } // namespace chess_engine
