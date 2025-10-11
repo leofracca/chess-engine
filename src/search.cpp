@@ -16,6 +16,7 @@ int Search::search(Board& board, const int depth)
     {
         int alpha = std::max(negativeInfinity, prevScore - aspirationWindowSize);
         int beta  = std::min(positiveInfinity, prevScore + aspirationWindowSize);
+        int multiplier = 1;
 
         while (true)
         {
@@ -24,17 +25,19 @@ int Search::search(Board& board, const int depth)
             if (score <= alpha)
             {
                 // Fail-low: widen the window and re-search
-                alpha = std::max(negativeInfinity, alpha - aspirationWindowSize);
+                alpha = std::max(negativeInfinity, alpha - aspirationWindowSize * multiplier);
             }
             else if (score >= beta)
             {
                 // Fail-high: widen the window and re-search
-                beta = std::min(positiveInfinity, beta + aspirationWindowSize);
+                beta  = std::min(positiveInfinity, beta + aspirationWindowSize * multiplier);
             }
             else
             {
-                break; // Score is within the window, exit the loop
+                break; // Within window
             }
+
+            multiplier *= 2; // Exponentially increase the window size
         }
         prevScore = score;
 

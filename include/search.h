@@ -100,7 +100,7 @@ private:
     static bool canPrune(bool isCheck, int depth, int ply, int pvLineLength);
 
 private:
-    static constexpr int positiveInfinity           = std::numeric_limits<int>::max();
+    static constexpr int positiveInfinity           = 100000;//std::numeric_limits<int>::max();
     static constexpr int negativeInfinity           = -positiveInfinity;
     static constexpr int aspirationWindowSize       = 50;
     static constexpr int lateMoveReductionThreshold = 3;
