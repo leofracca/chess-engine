@@ -186,11 +186,8 @@ int Evaluate::evaluateRooksOnOpenFile(const Board& board, Side side)
             {
                 isOpenFile = false;
 
-                if (side == White && whitePawnsBitboard.getBit(pawnSquare) == 1)
-                {
-                    isSemiOpenFile = false;
-                }
-                else if (side == Black && blackPawnsBitboard.getBit(pawnSquare) == 1)
+                if ((side == White && whitePawnsBitboard.getBit(pawnSquare) == 1) ||
+                    (side == Black && blackPawnsBitboard.getBit(pawnSquare) == 1))
                 {
                     isSemiOpenFile = false;
                 }
@@ -219,8 +216,8 @@ int Evaluate::evaluateRooksOnOpenFile(const Board& board, Side side)
 // Note: Maybe can reuse the code from move generation (Board::generatePieceMoves)?
 int Evaluate::evaluateMobility(const Board& board, Side side)
 {
-    int score              = 0;
-    Side otherSide         = side == White ? Black : White;
+    int score            = 0;
+    const Side otherSide = side == White ? Black : White;
     constexpr Bitboard emptyBitboard;
 
     const Bitboard occupancy         = board.getOccupancyForSide(side);
@@ -232,11 +229,11 @@ int Evaluate::evaluateMobility(const Board& board, Side side)
     while (bitboardPiece != emptyBitboard)
     {
         const Square source = bitboardPiece.getSquareOfLeastSignificantBitIndex();
-        Bitboard attacks = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
+        Bitboard attacks    = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
 
         while (attacks != emptyBitboard)
         {
-            score +=  s_knightMobilityBonus;
+            score += s_knightMobilityBonus;
             const Square target = attacks.getSquareOfLeastSignificantBitIndex();
             attacks.clearBit(target);
         }
@@ -249,11 +246,11 @@ int Evaluate::evaluateMobility(const Board& board, Side side)
     while (bitboardPiece != emptyBitboard)
     {
         const Square source = bitboardPiece.getSquareOfLeastSignificantBitIndex();
-        Bitboard attacks = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
+        Bitboard attacks    = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
 
         while (attacks != emptyBitboard)
         {
-            score +=  s_bishopMobilityBonus;
+            score += s_bishopMobilityBonus;
             const Square target = attacks.getSquareOfLeastSignificantBitIndex();
             attacks.clearBit(target);
         }
@@ -266,11 +263,11 @@ int Evaluate::evaluateMobility(const Board& board, Side side)
     while (bitboardPiece != emptyBitboard)
     {
         const Square source = bitboardPiece.getSquareOfLeastSignificantBitIndex();
-        Bitboard attacks = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
+        Bitboard attacks    = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
 
         while (attacks != emptyBitboard)
         {
-            score +=  s_rookMobilityBonus;
+            score += s_rookMobilityBonus;
             const Square target = attacks.getSquareOfLeastSignificantBitIndex();
             attacks.clearBit(target);
         }
@@ -283,11 +280,11 @@ int Evaluate::evaluateMobility(const Board& board, Side side)
     while (bitboardPiece != emptyBitboard)
     {
         const Square source = bitboardPiece.getSquareOfLeastSignificantBitIndex();
-        Bitboard attacks = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
+        Bitboard attacks    = pregenerated_moves::getKnightAttacks(source, allOccupancy) & ~occupancy.getBitboard();
 
         while (attacks != emptyBitboard)
         {
-            score +=  s_queenMobilityBonus;
+            score += s_queenMobilityBonus;
             const Square target = attacks.getSquareOfLeastSignificantBitIndex();
             attacks.clearBit(target);
         }
