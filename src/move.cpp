@@ -149,7 +149,7 @@ int Move::calculateScore(const int ply, const bool isPV) const
         }
         else
         {
-            const int pieceIndex = std::to_underlying(m_piece);
+            const int pieceIndex  = std::to_underlying(m_piece);
             const int targetIndex = std::to_underlying(m_target);
             score += Search::s_historyHeuristic[pieceIndex][targetIndex];
         }

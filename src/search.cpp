@@ -14,8 +14,8 @@ int Search::search(Board& board, const int depth)
     // Iterative deepening
     for (int currentDepth = 1; currentDepth <= depth; ++currentDepth)
     {
-        int alpha = std::max(negativeInfinity, prevScore - aspirationWindowSize);
-        int beta  = std::min(positiveInfinity, prevScore + aspirationWindowSize);
+        int alpha      = std::max(negativeInfinity, prevScore - aspirationWindowSize);
+        int beta       = std::min(positiveInfinity, prevScore + aspirationWindowSize);
         int multiplier = 1;
 
         while (true)
@@ -30,7 +30,7 @@ int Search::search(Board& board, const int depth)
             else if (score >= beta)
             {
                 // Fail-high: widen the window and re-search
-                beta  = std::min(positiveInfinity, beta + aspirationWindowSize * multiplier);
+                beta = std::min(positiveInfinity, beta + aspirationWindowSize * multiplier);
             }
             else
             {
