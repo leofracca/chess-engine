@@ -11,6 +11,7 @@
 
 #include "bitboard.h"
 #include "move.h"
+#include "zobrist.h"
 
 namespace chess_engine
 {
@@ -164,6 +165,13 @@ public:
      */
     [[nodiscard]] int getTotalMaterial(Side side) const;
 
+    /**
+     * @brief Get the Zobrist hash of the current board position.
+     *
+     * @return The Zobrist hash of the current board state.
+     */
+    [[nodiscard]] uint64_t getZobristHash() const;
+
 private:
     /**
      * @brief Convert a PieceWithColor to its corresponding FEN character.
@@ -242,6 +250,7 @@ private:
     Square m_enPassantSquare;        //< En passant square, if any
     int m_halfMoveClock;             //< Half-move clock for the fifty-move rule
     int m_fullMoveNumber;            //< Full move number
+    uint64_t m_zobristHash;          //< Zobrist hash of the current position
 
 public:
     /// String representations of squares

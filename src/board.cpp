@@ -2,15 +2,59 @@
 
 #include "evaluate.h"
 #include "pregenerated_moves.h"
+#include "zobrist.h"
 
 namespace chess_engine
 {
+/**
+ * @brief Helper function to compute Zobrist hash from scratch.
+ * This is used when initializing or re-parsing the board state.
+ */
+[[nodiscard]] uint64_t computeZobristHash(
+        const std::array<Bitboard, 12>& bitboardsPieces,
+        const Side sideToMove,
+        const CastlingRights castlingRights,
+        const Square enPassantSquare)
+{
+    uint64_t hash = 0;
+
+    // Hash all pieces on the board
+    for (int piece = 0; piece < 12; ++piece)
+    {
+        Bitboard bitboard = bitboardsPieces[piece];
+        constexpr Bitboard empty;
+
+        while (bitboard != empty)
+        {
+            const Square square = bitboard.getSquareOfLeastSignificantBitIndex();
+            hash ^= zobrist::getPieceKey(static_cast<PieceWithColor>(piece), square);
+            bitboard.clearBit(square);
+        }
+    }
+
+    // Hash the side to move
+    hash ^= zobrist::getSideKey(sideToMove == White ? 0 : 1);
+
+    // Hash the castling rights
+    hash ^= zobrist::getCastlingKey(std::to_underlying(castlingRights));
+
+    // Hash the en passant square
+    if (enPassantSquare != Square::INVALID)
+    {
+        const int file = std::to_underlying(enPassantSquare) % board_dimensions::N_FILES;
+        hash ^= zobrist::getEnPassantKey(file);
+    }
+
+    return hash;
+}
+
 Board::Board()
     : m_sideToMove(White),
       m_castlingRights(CastlingRights::None),
       m_enPassantSquare(Square::INVALID),
       m_halfMoveClock(0),
-      m_fullMoveNumber(0)
+      m_fullMoveNumber(0),
+      m_zobristHash(0)
 {
     std::fill(m_bitboardsPieces.begin(), m_bitboardsPieces.end(), 0);
     std::fill(m_occupancies.begin(), m_occupancies.end(), 0);
@@ -204,6 +248,9 @@ void Board::parseFENString(const std::string_view fenString)
         m_occupancies[std::to_underlying(Black)] |= m_bitboardsPieces[std::to_underlying(piece)];
     }
     m_occupancies[std::to_underlying(WhiteAndBlack)] = m_occupancies[std::to_underlying(White)] | m_occupancies[std::to_underlying(Black)];
+
+    // Compute Zobrist hash from the parsed board state
+    m_zobristHash = computeZobristHash(m_bitboardsPieces, m_sideToMove, m_castlingRights, m_enPassantSquare);
 }
 
 bool Board::isSquareAttacked(const Square square, const Side side) const
@@ -316,9 +363,23 @@ bool Board::makeMove(const Move& move)
     const bool isEnPassant             = move.isEnPassant();
     const bool isCastling              = move.isCastling();
 
+    // Remove the piece from the source square in the hash
+    m_zobristHash ^= zobrist::getPieceKey(piece, source);
+
     // Move the piece
     m_bitboardsPieces[std::to_underlying(piece)].clearBit(source);
     m_bitboardsPieces[std::to_underlying(piece)].setBit(target);
+
+    // Add the piece to the target square in the hash
+    if (promotedPiece != InvalidPiece)
+    {
+        // If it's a promotion, hash the promoted piece instead
+        m_zobristHash ^= zobrist::getPieceKey(promotedPiece, target);
+    }
+    else
+    {
+        m_zobristHash ^= zobrist::getPieceKey(piece, target);
+    }
 
     if (isCapture)
     {
@@ -331,6 +392,8 @@ bool Board::makeMove(const Move& move)
             // Remove the captured piece from the bitboard
             if (m_bitboardsPieces[std::to_underlying(capturedPiece)].getBit(target) == 1)
             {
+                // Remove the captured piece from the hash
+                m_zobristHash ^= zobrist::getPieceKey(capturedPiece, target);
                 m_bitboardsPieces[std::to_underlying(capturedPiece)].clearBit(target);
                 break;
             }
@@ -343,6 +406,8 @@ bool Board::makeMove(const Move& move)
         const PieceWithColor pawn = m_sideToMove == White ? WhitePawn : BlackPawn;
         m_bitboardsPieces[std::to_underlying(pawn)].clearBit(target);
         m_bitboardsPieces[std::to_underlying(promotedPiece)].setBit(target);
+        // Remove the pawn from the hash (it was added when we added the piece to source)
+        m_zobristHash ^= zobrist::getPieceKey(pawn, target);
     }
 
     if (isEnPassant)
@@ -351,7 +416,17 @@ bool Board::makeMove(const Move& move)
         const PieceWithColor pawn       = m_sideToMove == White ? BlackPawn : WhitePawn;
         const Square capturedPawnSquare = m_sideToMove == White ? target + 8 : target - 8;
         m_bitboardsPieces[std::to_underlying(pawn)].clearBit(capturedPawnSquare);
+        // Remove the captured pawn from the hash
+        m_zobristHash ^= zobrist::getPieceKey(pawn, capturedPawnSquare);
     }
+
+    // Remove the old en passant square from the hash if it exists
+    if (boardBeforeMove.m_enPassantSquare != Square::INVALID)
+    {
+        const int file = std::to_underlying(boardBeforeMove.m_enPassantSquare) % board_dimensions::N_FILES;
+        m_zobristHash ^= zobrist::getEnPassantKey(file);
+    }
+
     // Reset en passant square after the move
     m_enPassantSquare = Square::INVALID;
 
@@ -359,6 +434,9 @@ bool Board::makeMove(const Move& move)
     {
         // Set the en passant square to the square behind the pawn
         m_enPassantSquare = m_sideToMove == White ? target + 8 : target - 8;
+        // Add the new en passant square to the hash
+        const int file = std::to_underlying(m_enPassantSquare) % board_dimensions::N_FILES;
+        m_zobristHash ^= zobrist::getEnPassantKey(file);
     }
 
     if (isCastling)
@@ -370,23 +448,34 @@ bool Board::makeMove(const Move& move)
             case g1:
                 m_bitboardsPieces[std::to_underlying(rook)].setBit(f1);
                 m_bitboardsPieces[std::to_underlying(rook)].clearBit(h1);
+                m_zobristHash ^= zobrist::getPieceKey(rook, f1);
+                m_zobristHash ^= zobrist::getPieceKey(rook, h1);
                 break;
             case c1:
                 m_bitboardsPieces[std::to_underlying(rook)].setBit(d1);
                 m_bitboardsPieces[std::to_underlying(rook)].clearBit(a1);
+                m_zobristHash ^= zobrist::getPieceKey(rook, d1);
+                m_zobristHash ^= zobrist::getPieceKey(rook, a1);
                 break;
             case g8:
                 m_bitboardsPieces[std::to_underlying(rook)].setBit(f8);
                 m_bitboardsPieces[std::to_underlying(rook)].clearBit(h8);
+                m_zobristHash ^= zobrist::getPieceKey(rook, f8);
+                m_zobristHash ^= zobrist::getPieceKey(rook, h8);
                 break;
             case c8:
                 m_bitboardsPieces[std::to_underlying(rook)].setBit(d8);
                 m_bitboardsPieces[std::to_underlying(rook)].clearBit(a8);
+                m_zobristHash ^= zobrist::getPieceKey(rook, d8);
+                m_zobristHash ^= zobrist::getPieceKey(rook, a8);
                 break;
             default:
                 return false; // Invalid castling move
         }
     }
+
+    // Remove the old castling rights from the hash
+    m_zobristHash ^= zobrist::getCastlingKey(std::to_underlying(boardBeforeMove.m_castlingRights));
 
     // Update castling rights
     if (piece == WhiteKing)
@@ -404,6 +493,9 @@ bool Board::makeMove(const Move& move)
     else if (source == Square::a8 || target == Square::a8) m_castlingRights &= ~CastlingRights::BlackLong;
     else if (source == Square::h8 || target == Square::h8) m_castlingRights &= ~CastlingRights::BlackShort;
 
+    // Add the new castling rights to the hash
+    m_zobristHash ^= zobrist::getCastlingKey(std::to_underlying(m_castlingRights));
+
     // Update occupancies
     std::fill(m_occupancies.begin(), m_occupancies.end(), 0);
     for (PieceWithColor p = WhitePawn; p <= WhiteKing; ++p)
@@ -418,6 +510,9 @@ bool Board::makeMove(const Move& move)
 
     // Update the side to move
     m_sideToMove = m_sideToMove == White ? Black : White;
+    // Update hash for side to move change
+    m_zobristHash ^= zobrist::getSideKey(0);
+    m_zobristHash ^= zobrist::getSideKey(1);
 
     // Check if king is in check after the move
     const PieceWithColor king = m_sideToMove == White ? BlackKing : WhiteKing;
@@ -434,10 +529,21 @@ bool Board::makeMove(const Move& move)
 
 void Board::makeNullMove()
 {
-    m_sideToMove = m_sideToMove == White ? Black : White;
+    // Remove the old en passant square from the hash if it exists
+    if (m_enPassantSquare != Square::INVALID)
+    {
+        const int file = std::to_underlying(m_enPassantSquare) % board_dimensions::N_FILES;
+        m_zobristHash ^= zobrist::getEnPassantKey(file);
+    }
+
+    m_sideToMove      = m_sideToMove == White ? Black : White;
     m_enPassantSquare = Square::INVALID;
     m_halfMoveClock++;
     m_fullMoveNumber++;
+
+    // Update hash for side to move change
+    m_zobristHash ^= zobrist::getSideKey(0);
+    m_zobristHash ^= zobrist::getSideKey(1);
 }
 
 
@@ -735,7 +841,7 @@ Bitboard Board::getOccupancyForSide(const Side side) const
 
 int Board::getTotalMaterial(const Side side) const
 {
-    int totalMaterial = 0;
+    int totalMaterial         = 0;
     const PieceWithColor pawn = side == White ? WhitePawn : BlackPawn;
     const PieceWithColor king = side == White ? WhiteKing : BlackKing;
 
@@ -748,5 +854,9 @@ int Board::getTotalMaterial(const Side side) const
     return totalMaterial;
 }
 
+uint64_t Board::getZobristHash() const
+{
+    return m_zobristHash;
+}
 
 } // namespace chess_engine
